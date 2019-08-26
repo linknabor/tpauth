@@ -9,7 +9,7 @@ import com.eshequ.hexie.tpauth.common.Constants;
 import com.eshequ.hexie.tpauth.schedule.ScheduleService;
 import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.vo.ComponentAcessToken;
-import com.eshequ.hexie.tpauth.vo.VerifyTicket;
+import com.eshequ.hexie.tpauth.vo.ComponentVerifyTicket;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -33,7 +33,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		Long currentTime = System.currentTimeMillis();
 		
 		if (currentTime - createTime > ((60+50)*60*1000)) {
-			VerifyTicket verifyTicket = (VerifyTicket) redisTemplate.opsForValue().get(Constants.VERIFY_TICKET);
+			ComponentVerifyTicket verifyTicket = (ComponentVerifyTicket) redisTemplate.opsForValue().get(Constants.VERIFY_TICKET);
 			cat = authService.getComponentAccessToken(verifyTicket.getVerifyTicket());
 			cat.setCreateTime(System.currentTimeMillis());
 			redisTemplate.opsForValue().set(Constants.COMPONENT_ACCESS_TOKEN, cat);

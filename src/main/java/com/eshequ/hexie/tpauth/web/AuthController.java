@@ -1,8 +1,6 @@
 package com.eshequ.hexie.tpauth.web;
 
-import java.util.Enumeration;
-
-import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eshequ.hexie.tpauth.common.WechatConfig;
+import com.eshequ.hexie.tpauth.exception.AesException;
 import com.eshequ.hexie.tpauth.service.AuthService;
+import com.eshequ.hexie.tpauth.vo.AuthRequest;
 
 @RestController
 @RequestMapping(value = "/event")
@@ -34,24 +34,20 @@ public class AuthController {
 	 * 授权事件接收
 	 * @param requestXml
 	 * @return
+	 * @throws AesException 
+	 * @throws IOException 
 	 */
 	@RequestMapping(value = "/auth", method = {RequestMethod.POST})
-	public String authEvent(HttpServletRequest request, @RequestBody String requestXml, 
+	public String authEvent(@RequestBody String requestXml, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestParam(value = "nonce", required = false) String nonce, 
 			@RequestParam(value = "encrypt_type", required = false) String encryptType,
-			@RequestParam(value = "msg_signature", required = false) String msgSignature) {
+			@RequestParam(value = "msg_signature", required = false) String msgSignature) throws AesException, IOException {
 		
-		logger.info("auth event request body: " + requestXml);
-		Enumeration<String> e = request.getParameterNames();
-		while(e.hasMoreElements()) {
-			String name = e.nextElement();
-			logger.info("auth event requet param name : " + name);
-			String value = request.getParameter(name);
-			logger.info("auth event requet param value : " + value);
-		}
-//		authService.authEventHandle(requestXml);
+		AuthRequest authRequest = new AuthRequest(signature, timeStamp, nonce, encryptType, msgSignature, requestXml);
+		logger.info("auth event request is : " + authRequest);
+		authService.authEventHandle(authRequest);
 		return WechatConfig.SUCCESS;
 	}
 	

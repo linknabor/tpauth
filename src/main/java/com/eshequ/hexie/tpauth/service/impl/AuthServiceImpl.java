@@ -1,5 +1,6 @@
 package com.eshequ.hexie.tpauth.service.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -13,13 +14,15 @@ import org.springframework.stereotype.Service;
 
 import com.eshequ.hexie.tpauth.common.Constants;
 import com.eshequ.hexie.tpauth.common.WechatConfig;
-import com.eshequ.hexie.tpauth.exception.AppSysException;
+import com.eshequ.hexie.tpauth.exception.AesException;
 import com.eshequ.hexie.tpauth.exception.BusinessException;
 import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.util.RestUtil;
+import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
+import com.eshequ.hexie.tpauth.vo.AuthRequest;
 import com.eshequ.hexie.tpauth.vo.ComponentAcessToken;
+import com.eshequ.hexie.tpauth.vo.ComponentVerifyTicket;
 import com.eshequ.hexie.tpauth.vo.PreAuthCode;
-import com.eshequ.hexie.tpauth.vo.VerifyTicket;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
@@ -34,15 +37,20 @@ public class AuthServiceImpl implements AuthService{
 	@Value("${component.secret}")
 	private String componetSecret;
 	
+	@Value("${component.token}")
+	private String token;
+	
+	@Value("${component.aeskey}")
+	private String aeskey;
+	
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 	
 	@Autowired
 	private RestUtil restUtil;
-
-
+	
 	@Override
-	public void saveVerifyTicket(VerifyTicket verifyTicket) {
+	public void saveVerifyTicket(ComponentVerifyTicket verifyTicket) {
 
 		redisTemplate.opsForValue().set(Constants.VERIFY_TICKET, verifyTicket.getVerifyTicket());
 	}
@@ -85,31 +93,46 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	@Override
-	public void authEventHandle(String xml) {
+	public void authEventHandle(AuthRequest authRequest) throws AesException, IOException {
 
-		try {
-			XmlMapper xmlMapper = new XmlMapper();
-			JsonNode jsonNode = xmlMapper.readTree(xml);
-			JsonNode typeNode = jsonNode.path("InfoType");
-			if (typeNode!=null) {
-				String infotype = typeNode.asText();	//节点内容转文本
-				switch (infotype) {
-				case WechatConfig.EVENT_TYPE_VERIFY_TICKET:
-					VerifyTicket verifyTicket = xmlMapper.readValue(xml, VerifyTicket.class);
-					saveVerifyTicket(verifyTicket);
-					break;
-				default:
-					logger.error("unknow info type : " + infotype);
-					throw new BusinessException("invalid request !");
-				}
-				
-			}else {
-				logger.error("no xml node 'InfoType' !");
-				throw new BusinessException("invalid request !");
-			}
-		} catch (Exception e) {
-			throw new AppSysException(e);
+		String formattedXml = authRequest.getPostData().replaceAll("\r", "").replaceAll("\n", "").
+				replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		JsonNode rootNode = xmlMapper.readTree(formattedXml);	//解析xml
+		JsonNode appidNode = rootNode.path("AppId");		//appid节点
+		JsonNode encryptNode = rootNode.path("Encrypt");	//取出打了码的内容部分节点
+		
+		String msgAppId = appidNode.asText();
+		if (!componentAppid.equals(msgAppId)) {
+			throw new BusinessException("invalid appid : " + msgAppId);
 		}
+		String encryptStr = encryptNode.asText();
+		
+		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
+		String decryptedContent = msgCrypt.decryptMsg(authRequest.getMsg_signature(), authRequest.getTimestamp(), 
+				authRequest.getNonce(), encryptStr);
+		
+		logger.info("decrypted content : " + decryptedContent);	//解密后的内容，是个xml
+		
+		decryptedContent = decryptedContent.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").
+				replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
+		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
+		JsonNode typeNode = decryptRoot.path("InfoType");
+		if (typeNode == null) {
+			throw new BusinessException("invalid message! no InfoType node !");
+		}
+		String infoType = typeNode.asText();
+		switch (infoType) {
+		case WechatConfig.EVENT_TYPE_VERIFY_TICKET:
+			ComponentVerifyTicket ticket = xmlMapper.readValue(decryptedContent, ComponentVerifyTicket.class);
+			saveVerifyTicket(ticket);
+			break;
+		default:
+			logger.error("unknow info type : " + infoType);
+			break;
+		}
+		
 		
 	}
 

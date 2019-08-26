@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class VerifyTicket implements Serializable{
+public class ComponentVerifyTicket implements Serializable{
 
 	/**
 	 * 
