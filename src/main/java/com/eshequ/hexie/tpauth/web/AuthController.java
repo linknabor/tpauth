@@ -1,5 +1,7 @@
 package com.eshequ.hexie.tpauth.web;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,10 +33,12 @@ public class AuthController {
 	 * @return
 	 */
 	@RequestMapping(value = "/auth", method = RequestMethod.POST)
-	public String authEvent(@RequestBody String requestXml) {
+	public String authEvent(HttpServletRequest request, @RequestBody String requestXml) {
 		
-		logger.info("auth event request : " + requestXml);
-		authService.authEventHandle(requestXml);
+		logger.info("auth event request body: " + requestXml);
+		logger.info("auth event request urlParam: " + request.getParameterMap());
+		
+//		authService.authEventHandle(requestXml);
 		return WechatConfig.SUCCESS;
 	}
 	
