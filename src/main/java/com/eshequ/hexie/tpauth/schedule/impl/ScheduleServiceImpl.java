@@ -1,5 +1,7 @@
 package com.eshequ.hexie.tpauth.schedule.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,6 +16,8 @@ import com.eshequ.hexie.tpauth.vo.ComponentVerifyTicket;
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
 
+	private static Logger logger = LoggerFactory.getLogger(ScheduleServiceImpl.class);
+	
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 	@Autowired
@@ -27,6 +31,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 	@Scheduled(cron = "0 0/10 * * * ?")
 	@Override
 	public void setComponentAccessToken() {
+		
+		logger.info("start to get component access token.");
 
 		ComponentAcessToken cat = (ComponentAcessToken) redisTemplate.opsForValue().get(Constants.COMPONENT_ACCESS_TOKEN);
 		Long createTime = cat.getCreateTime();
@@ -37,8 +43,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 			cat = authService.getComponentAccessToken(verifyTicket.getVerifyTicket());
 			cat.setCreateTime(System.currentTimeMillis());
 			redisTemplate.opsForValue().set(Constants.COMPONENT_ACCESS_TOKEN, cat);
-			
+			logger.info("save component access token into redis .");
 		}
+		logger.info("end getting component access token.");
+		
 	}
 
 }

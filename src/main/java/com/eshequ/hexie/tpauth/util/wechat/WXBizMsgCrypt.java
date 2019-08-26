@@ -22,6 +22,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.eshequ.hexie.tpauth.exception.AesException;
 
@@ -41,6 +43,9 @@ import com.eshequ.hexie.tpauth.exception.AesException;
  * </ol>
  */
 public class WXBizMsgCrypt {
+	
+	private static Logger logger = LoggerFactory.getLogger(WXBizMsgCrypt.class);
+	
 	static Charset CHARSET = Charset.forName("utf-8");
 	Base64 base64 = new Base64();
 	byte[] aesKey;
@@ -166,7 +171,7 @@ public class WXBizMsgCrypt {
 			// 解密
 			original = cipher.doFinal(encrypted);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			throw new AesException(AesException.DecryptAESError);
 		}
 
@@ -184,7 +189,7 @@ public class WXBizMsgCrypt {
 			from_appid = new String(Arrays.copyOfRange(bytes, 20 + xmlLength, bytes.length),
 					CHARSET);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage(), e);
 			throw new AesException(AesException.IllegalBuffer);
 		}
 

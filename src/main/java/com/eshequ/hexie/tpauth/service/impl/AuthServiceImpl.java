@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService{
 	
 	/**
 	 * 获取预授权码
-	 * 先从缓存中取，如果没有，访问微信获取。缓存设置10分钟过期。不做定时操作，因为这个码的使用频率很低，没必要每10分钟取一次。做缓存是为了单个用户反复刷新页面操作不用重复做http开销
+	 * 先从缓存中取，如果没有，访问微信获取。缓存设置10分钟过期。不做定时轮询的存储操作，因为这个码的使用频率很低，没必要每10分钟取一次。做缓存是为了单个用户反复刷新页面操作不用重复做http开销
 	 */
 	@Override
 	public PreAuthCode getPreAuthCode() {
