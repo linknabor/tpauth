@@ -1,8 +1,6 @@
 package com.eshequ.hexie.tpauth.service.impl;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -11,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 
 import com.eshequ.hexie.tpauth.common.Constants;
 import com.eshequ.hexie.tpauth.common.WechatConfig;
@@ -59,14 +58,14 @@ public class AuthServiceImpl implements AuthService{
 	public ComponentAcessToken getComponentAccessToken(String verifyTicket) {
 		
 		String reqUrl = WechatConfig.COMPONENT_ACCESS_TOKEN_URL;
-		Map<String, String> postData = new HashMap<>();
-		postData.put("component_appid", componentAppid);
-		postData.put("component_appsecret", componetSecret);
-		postData.put("component_verify_ticket", verifyTicket);
+		LinkedMultiValueMap<String, String> postData = new LinkedMultiValueMap<>();
+		postData.add("component_appid", componentAppid);
+		postData.add("component_appsecret", componetSecret);
+		postData.add("component_verify_ticket", verifyTicket);
 		
 		ComponentAcessToken cat = null;
 		try {
-			cat = restUtil.doPost(reqUrl, postData, ComponentAcessToken.class);
+			cat = restUtil.postByForm(reqUrl, postData, ComponentAcessToken.class);
 		} catch (Exception e) {	//可能post返回的是失败的结果，这样转实体会失败
 			throw new BusinessException(e.getMessage(), e);
 		}
@@ -87,9 +86,9 @@ public class AuthServiceImpl implements AuthService{
 			ComponentAcessToken cat = (ComponentAcessToken) redisTemplate.opsForValue().get(Constants.COMPONENT_ACCESS_TOKEN);
 			String reqUrl = WechatConfig.PRE_AUTH_CODE_URL;
 			reqUrl = String.format(reqUrl, cat.getComponentAcessToken());
-			Map<String, String> postData = new HashMap<>();
-			postData.put("component_appid", componentAppid);
-			PreAuthCode preAuthCode = restUtil.doPost(reqUrl, postData, PreAuthCode.class);
+			LinkedMultiValueMap<String, String> postData = new LinkedMultiValueMap<>();
+			postData.add("component_appid", componentAppid);
+			PreAuthCode preAuthCode = restUtil.postByForm(reqUrl, postData, PreAuthCode.class);
 			redisTemplate.opsForValue().set(Constants.PRE_AUTH_CODE, preAuthCode);
 			redisTemplate.expire(Constants.PRE_AUTH_CODE, 10, TimeUnit.MINUTES);	//设置10分钟过期
 			pac = preAuthCode;
