@@ -1,6 +1,8 @@
 package com.eshequ.hexie.tpauth.service.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -58,14 +60,14 @@ public class AuthServiceImpl implements AuthService{
 	public ComponentAcessToken getComponentAccessToken(String verifyTicket) {
 		
 		String reqUrl = WechatConfig.COMPONENT_ACCESS_TOKEN_URL;
-		LinkedMultiValueMap<String, String> postData = new LinkedMultiValueMap<>();
-		postData.add("component_appid", componentAppid);
-		postData.add("component_appsecret", componetSecret);
-		postData.add("component_verify_ticket", verifyTicket);
+		Map<String, String> postData = new HashMap<>();
+		postData.put("component_appid", componentAppid);
+		postData.put("component_appsecret", componetSecret);
+		postData.put("component_verify_ticket", verifyTicket);
 		
 		ComponentAcessToken cat = null;
 		try {
-			cat = restUtil.postByForm(reqUrl, postData, ComponentAcessToken.class);
+			cat = restUtil.postByJson(reqUrl, postData, ComponentAcessToken.class);
 		} catch (Exception e) {	//可能post返回的是失败的结果，这样转实体会失败
 			throw new BusinessException(e.getMessage(), e);
 		}
