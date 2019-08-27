@@ -10,7 +10,7 @@ import com.eshequ.hexie.tpauth.vo.ComponentVerifyTicket;
 
 public interface AuthService {
 	
-	void authEventHandle(AuthRequest authRequest) throws AesException, IOException;
+	void handleAuthEvent(AuthRequest authRequest) throws AesException, IOException;
 
 	void saveVerifyTicket(ComponentVerifyTicket verifyTicket);
 	

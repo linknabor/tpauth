@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService{
 	@Override
 	public void saveVerifyTicket(ComponentVerifyTicket verifyTicket) {
 
-		redisTemplate.opsForValue().set(Constants.VERIFY_TICKET, verifyTicket.getVerifyTicket());
+		redisTemplate.opsForValue().set(Constants.VERIFY_TICKET, verifyTicket);
 	}
 
 	@Override
@@ -64,7 +64,12 @@ public class AuthServiceImpl implements AuthService{
 		postData.put("component_appsecret", componetSecret);
 		postData.put("component_verify_ticket", verifyTicket);
 		
-		ComponentAcessToken cat = restUtil.doPost(reqUrl, postData, ComponentAcessToken.class);
+		ComponentAcessToken cat = null;
+		try {
+			cat = restUtil.doPost(reqUrl, postData, ComponentAcessToken.class);
+		} catch (Exception e) {	//可能post返回的是失败的结果，这样转实体会失败
+			throw new BusinessException(e.getMessage(), e);
+		}
 		return cat;
 		
 	}
@@ -93,7 +98,7 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	@Override
-	public void authEventHandle(AuthRequest authRequest) throws AesException, IOException {
+	public void handleAuthEvent(AuthRequest authRequest) throws AesException, IOException {
 
 		String formattedXml = authRequest.getPostData().replaceAll("\r", "").replaceAll("\n", "").
 				replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行

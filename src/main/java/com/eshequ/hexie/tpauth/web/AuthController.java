@@ -47,7 +47,7 @@ public class AuthController {
 		
 		AuthRequest authRequest = new AuthRequest(signature, timeStamp, nonce, encryptType, msgSignature, requestXml);
 		logger.info("auth event request is : " + authRequest);
-		authService.authEventHandle(authRequest);
+		authService.handleAuthEvent(authRequest);
 		return WechatConfig.SUCCESS;
 	}
 	

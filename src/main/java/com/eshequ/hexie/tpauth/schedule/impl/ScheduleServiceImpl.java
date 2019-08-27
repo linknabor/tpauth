@@ -30,7 +30,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	 */
 	@Scheduled(cron = "* */10 * * * ?")
 	@Override
-	public void setComponentAccessToken() {
+	public void updateComponentAccessToken() {
 		
 		logger.info("start to check component access token.");
 
