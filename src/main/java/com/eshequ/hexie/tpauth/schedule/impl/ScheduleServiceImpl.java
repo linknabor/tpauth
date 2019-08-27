@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.eshequ.hexie.tpauth.common.Constants;
 import com.eshequ.hexie.tpauth.schedule.ScheduleService;
@@ -46,7 +47,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 		}
 		if (updateFlag) {
 			ComponentVerifyTicket verifyTicket = (ComponentVerifyTicket) redisTemplate.opsForValue().get(Constants.VERIFY_TICKET);
-			if (verifyTicket == null) {
+			if (verifyTicket == null || StringUtils.isEmpty(verifyTicket.getVerifyTicket())) {
 				logger.warn("no verify ticket .");
 				return;
 			}
