@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.eshequ.hexie.tpauth.common.WechatConfig;
 import com.eshequ.hexie.tpauth.exception.AesException;
+import com.eshequ.hexie.tpauth.exception.BusinessException;
 import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.vo.AuthRequest;
 
@@ -66,16 +68,19 @@ public class AuthController {
 	}
 	
 	/**
-	 * 获取授权链接，根据不同客户端返回不同的链接形式
+	 * 客户端授权
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/authLink", method = RequestMethod.GET)
-	public String getAuthLink(HttpServletRequest request) {
+	@RequestMapping(value = "/client/auth", method = RequestMethod.POST)
+	public String clientAuth(HttpServletRequest request) {
 		
-		String requestHeader = request.getHeader("user-agent");
-		logger.info("requset header : " + requestHeader);
-		String authLink = authService.getAuthLink(requestHeader);
+		String vericode = request.getParameter("vericode");
+		String requestHead = request.getHeader("user-agent");
+		if (StringUtils.isEmpty(vericode)) {
+			throw new BusinessException("invalid request!");
+		}
+		String authLink = authService.clientAuth(requestHead);
 		return authLink;
 	}
 	

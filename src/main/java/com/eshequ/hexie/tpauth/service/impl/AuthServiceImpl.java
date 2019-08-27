@@ -2,6 +2,7 @@ package com.eshequ.hexie.tpauth.service.impl;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -79,8 +80,7 @@ public class AuthServiceImpl implements AuthService{
 	 * 获取预授权码
 	 * 先从缓存中取，如果没有，访问微信获取。缓存设置10分钟过期。不做定时轮询的存储操作，因为这个码的使用频率很低，没必要每10分钟取一次。做缓存是为了单个用户反复刷新页面操作不用重复做http开销
 	 */
-	@Override
-	public PreAuthCode getPreAuthCode() {
+	private PreAuthCode getPreAuthCode() {
 		
 		PreAuthCode pac = (PreAuthCode) redisTemplate.opsForValue().get(Constants.PRE_AUTH_CODE);
 		
@@ -143,29 +143,31 @@ public class AuthServiceImpl implements AuthService{
 	}
 
 	/**
-	 * 页面或者手机端获取授权链接
+	 * 客户端授权，返回授权链接
+	 * @param	requestHead
+	 * @return
 	 */
 	@Override
-	public String getAuthLink(String requestHeader) {
+	public String clientAuth(String requestHead) {
 		
+		List<String> mobileDevs = Constants.mobileDevices;
 		boolean isMobile = false;
-		for (String device : Constants.mobileDevices) {
-			if (requestHeader.indexOf(device) > 0 ) {
+		for (String dev : mobileDevs) {
+			if (requestHead.indexOf(dev)>0) {
 				isMobile = true;
 				break;
 			}
 		}
 		String authLink = "";
-		String redirectUri = "";
 		if (isMobile) {
-			authLink = WechatConfig.MOBILE_AUTH_LINK;
-			redirectUri = "";
+			authLink = WechatConfig.MOBILE_AUTH_URL;
 		}else {
-			authLink = WechatConfig.PC_AUTH_LINK;
-			redirectUri = "";
+			authLink = WechatConfig.PC_AUTH_URL;
 		}
 		PreAuthCode preAuthCode = getPreAuthCode();
-		authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", WechatConfig.AUTH_REDIRECT_URI);
+
+		authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", 
+				preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", WechatConfig.AUTH_REDIRECT_URI);
 		return authLink;
 	}
 
