@@ -28,7 +28,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	 * 获取componentAccessToken，每隔10分钟一次，如果token未超时，则不更新。
 	 * token每2小时超时，大于1小时50分的时候更新
 	 */
-	@Scheduled(cron = "* 0/5 * * * ?")
+	@Scheduled(cron = "0 0/5 * * * ?")
 	@Override
 	public void updateComponentAccessToken() {
 		
@@ -46,6 +46,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 		}
 		if (updateFlag) {
 			ComponentVerifyTicket verifyTicket = (ComponentVerifyTicket) redisTemplate.opsForValue().get(Constants.VERIFY_TICKET);
+			if (verifyTicket == null) {
+				logger.warn("no verify ticket .");
+				return;
+			}
 			cat = authService.getComponentAccessToken(verifyTicket.getVerifyTicket());
 			cat.setCreateTime(System.currentTimeMillis());
 			redisTemplate.opsForValue().set(Constants.COMPONENT_ACCESS_TOKEN, cat);

@@ -21,13 +21,18 @@ public class RestUtil {
 	@Autowired
 	@Qualifier("restTemplate")
 	private RestTemplate restTemplate;
+	
 
 	public <T> T doPost(String reqUrl, Map<String, String> postData, Class<T> respClazz){
 		
+		logger.info("request url : " + reqUrl);
+		logger.info("post data : " + postData);
+		
 		ResponseEntity<T> resp = restTemplate.postForEntity(reqUrl, postData, respClazz);
+		logger.info("response : " + resp);
 		HttpStatus httpStatus = resp.getStatusCode();
 		if (HttpStatus.OK.equals(httpStatus) ) {
-			logger.info("response entity is : " + resp.getBody());
+			//do nothing
 		}else {
 			throw new BusinessException("request failed, code : " + httpStatus);
 		}
