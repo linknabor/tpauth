@@ -46,4 +46,18 @@ public class AuthApplicationTests {
 		
 		authService.getComponentAccessToken("1");
 	}
+	
+	@Test
+	public void testStringFormat() {
+		
+		String link = "baidu.com?a=%s&b=%s";
+		String alink = String.format(link, "A", "b");
+		
+		String link2 = "baidu.com?a=%S&b=%s";
+		String blink = String.format(link2, "a", "B");
+		
+		System.out.println("a : " + alink);
+		System.out.println("b : " + blink);
+		
+	}
 }
