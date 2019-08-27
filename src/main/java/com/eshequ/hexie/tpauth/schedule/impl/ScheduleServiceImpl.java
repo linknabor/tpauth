@@ -28,12 +28,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 	 * 获取componentAccessToken，每隔10分钟一次，如果token未超时，则不更新。
 	 * token每2小时超时，大于1小时50分的时候更新
 	 */
-	@Scheduled(cron = "* */10 * * * ?")
+	@Scheduled(cron = "* 0/5 * * * ?")
 	@Override
 	public void updateComponentAccessToken() {
 		
 		logger.info("start to check component access token.");
-
 		ComponentAcessToken cat = (ComponentAcessToken) redisTemplate.opsForValue().get(Constants.COMPONENT_ACCESS_TOKEN);
 		boolean updateFlag = false;
 		if (cat == null) {

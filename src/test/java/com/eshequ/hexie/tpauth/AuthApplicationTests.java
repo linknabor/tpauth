@@ -4,10 +4,12 @@ import java.io.IOException;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.eshequ.hexie.tpauth.config.AuthApplication;
+import com.eshequ.hexie.tpauth.schedule.ScheduleService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
@@ -23,5 +25,15 @@ public class AuthApplicationTests {
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode jsonNode = xmlMapper.readTree(xml);
 		System.out.println(jsonNode.asText());
+	}
+	
+	@Autowired
+	private ScheduleService scheduleService;
+	
+	@Test
+	public void testDeserialize() {
+		
+		scheduleService.updateComponentAccessToken();
+		
 	}
 }
