@@ -28,7 +28,7 @@ public class RestUtil {
 		logger.info("request url : " + reqUrl);
 		logger.info("post data : " + postData);
 		
-		ResponseEntity<T> resp = restTemplate.postForEntity(reqUrl, postData, respClazz);
+		ResponseEntity resp = restTemplate.postForEntity(reqUrl, postData, Map.class);
 		logger.info("response : " + resp);
 		HttpStatus httpStatus = resp.getStatusCode();
 		if (HttpStatus.OK.equals(httpStatus) ) {
@@ -36,7 +36,8 @@ public class RestUtil {
 		}else {
 			throw new BusinessException("request failed, code : " + httpStatus);
 		}
-		return resp.getBody();
+		return null;
+		
 	}
 	
 }
