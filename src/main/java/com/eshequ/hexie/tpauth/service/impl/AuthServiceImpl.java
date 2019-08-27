@@ -165,8 +165,8 @@ public class AuthServiceImpl implements AuthService{
 			redirectUri = "";
 		}
 		PreAuthCode preAuthCode = getPreAuthCode();
-		authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", redirectUri);
-		return null;
+		authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", WechatConfig.AUTH_REDIRECT_URI);
+		return authLink;
 	}
 
 	

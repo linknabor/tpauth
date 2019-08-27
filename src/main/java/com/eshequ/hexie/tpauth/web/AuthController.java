@@ -75,7 +75,8 @@ public class AuthController {
 		
 		String requestHeader = request.getHeader("user-agent");
 		logger.info("requset header : " + requestHeader);
-		return requestHeader;
+		String authLink = authService.getAuthLink(requestHeader);
+		return authLink;
 	}
 	
 
