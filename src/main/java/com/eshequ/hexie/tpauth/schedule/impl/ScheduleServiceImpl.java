@@ -36,10 +36,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 		logger.info("start to check component access token.");
 		ComponentAcessToken cat = (ComponentAcessToken) redisTemplate.opsForValue().get(Constants.COMPONENT_ACCESS_TOKEN);
 		boolean updateFlag = false;
-		if (cat == null) {
+		if (cat == null || StringUtils.isEmpty(cat.getComponentAcessToken())) {
 			updateFlag = true;
 		}else {
 			Long createTime = cat.getCreateTime();
+			createTime = 1566876901802l;
 			Long currentTime = System.currentTimeMillis();
 			if (currentTime - createTime > ((60+50)*60*1000)) {
 				updateFlag = true;
