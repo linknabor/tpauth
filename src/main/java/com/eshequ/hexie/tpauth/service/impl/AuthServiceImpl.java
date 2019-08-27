@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.StringUtils;
 
 import com.eshequ.hexie.tpauth.common.Constants;
 import com.eshequ.hexie.tpauth.common.WechatConfig;
@@ -84,13 +84,13 @@ public class AuthServiceImpl implements AuthService{
 		
 		PreAuthCode pac = (PreAuthCode) redisTemplate.opsForValue().get(Constants.PRE_AUTH_CODE);
 		
-		if (pac == null) {
+		if (pac == null || StringUtils.isEmpty(pac.getPreAuthCode())) {
 			ComponentAcessToken cat = (ComponentAcessToken) redisTemplate.opsForValue().get(Constants.COMPONENT_ACCESS_TOKEN);
 			String reqUrl = WechatConfig.PRE_AUTH_CODE_URL;
 			reqUrl = String.format(reqUrl, cat.getComponentAcessToken());
-			LinkedMultiValueMap<String, String> postData = new LinkedMultiValueMap<>();
-			postData.add("component_appid", componentAppid);
-			PreAuthCode preAuthCode = restUtil.postByForm(reqUrl, postData, PreAuthCode.class);
+			Map<String, String> postData = new HashMap<>();
+			postData.put("component_appid", componentAppid);
+			PreAuthCode preAuthCode = restUtil.postByJson(reqUrl, postData, PreAuthCode.class);
 			redisTemplate.opsForValue().set(Constants.PRE_AUTH_CODE, preAuthCode);
 			redisTemplate.expire(Constants.PRE_AUTH_CODE, 10, TimeUnit.MINUTES);	//设置10分钟过期
 			pac = preAuthCode;
@@ -140,6 +140,33 @@ public class AuthServiceImpl implements AuthService{
 		}
 		
 		
+	}
+
+	/**
+	 * 页面或者手机端获取授权链接
+	 */
+	@Override
+	public String getAuthLink(String requestHeader) {
+		
+		boolean isMobile = false;
+		for (String device : Constants.mobileDevices) {
+			if (requestHeader.indexOf(device) > 0 ) {
+				isMobile = true;
+				break;
+			}
+		}
+		String authLink = "";
+		String redirectUri = "";
+		if (isMobile) {
+			authLink = WechatConfig.MOBILE_AUTH_LINK;
+			redirectUri = "";
+		}else {
+			authLink = WechatConfig.PC_AUTH_LINK;
+			redirectUri = "";
+		}
+		PreAuthCode preAuthCode = getPreAuthCode();
+		authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", redirectUri);
+		return null;
 	}
 
 	

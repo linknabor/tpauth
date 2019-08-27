@@ -17,4 +17,6 @@ public interface AuthService {
 	ComponentAcessToken getComponentAccessToken(String verifyTicket);
 	
 	PreAuthCode getPreAuthCode();
+	
+	String getAuthLink(String requestHeader);
 }

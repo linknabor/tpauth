@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.eshequ.hexie.tpauth.config.AuthApplication;
 import com.eshequ.hexie.tpauth.schedule.ScheduleService;
+import com.eshequ.hexie.tpauth.service.AuthService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
@@ -35,5 +36,14 @@ public class AuthApplicationTests {
 		
 		scheduleService.updateComponentAccessToken();
 		
+	}
+	
+	@Autowired
+	private AuthService authService;
+	
+	@Test
+	public void testGetComponentAccessToken() {
+		
+		authService.getComponentAccessToken("1");
 	}
 }

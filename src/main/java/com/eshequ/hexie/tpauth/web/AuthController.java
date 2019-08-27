@@ -2,6 +2,8 @@ package com.eshequ.hexie.tpauth.web;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,6 @@ import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.vo.AuthRequest;
 
 @RestController
-@RequestMapping(value = "/event")
 public class AuthController {
 	
 	private Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -37,7 +38,7 @@ public class AuthController {
 	 * @throws AesException 
 	 * @throws IOException 
 	 */
-	@RequestMapping(value = "/auth", method = {RequestMethod.POST})
+	@RequestMapping(value = "/event/auth", method = {RequestMethod.POST})
 	public String authEvent(@RequestBody String requestXml, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
@@ -56,12 +57,25 @@ public class AuthController {
 	 * @param requestXml
 	 * @return
 	 */
-	@RequestMapping(value = "/msg/*/", method = RequestMethod.POST)
+	@RequestMapping(value = "/event/msg/*/", method = RequestMethod.POST)
 	public String msgEvent(@RequestBody String requestXml) {
 		
 		logger.info("msg event request : " + requestXml);
 		logger.info(requestXml);
 		return "a";
+	}
+	
+	/**
+	 * 获取授权链接，根据不同客户端返回不同的链接形式
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value = "/authLink", method = RequestMethod.GET)
+	public String getAuthLink(HttpServletRequest request) {
+		
+		String requestHeader = request.getHeader("user-agent");
+		logger.info("requset header : " + requestHeader);
+		return requestHeader;
 	}
 	
 
