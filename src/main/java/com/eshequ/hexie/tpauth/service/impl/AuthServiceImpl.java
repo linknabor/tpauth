@@ -1,6 +1,8 @@
 package com.eshequ.hexie.tpauth.service.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,7 @@ import org.springframework.util.StringUtils;
 import com.eshequ.hexie.tpauth.common.Constants;
 import com.eshequ.hexie.tpauth.common.WechatConfig;
 import com.eshequ.hexie.tpauth.exception.AesException;
+import com.eshequ.hexie.tpauth.exception.AppSysException;
 import com.eshequ.hexie.tpauth.exception.BusinessException;
 import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.util.RestUtil;
@@ -166,8 +169,12 @@ public class AuthServiceImpl implements AuthService{
 		}
 		PreAuthCode preAuthCode = getPreAuthCode();
 
-		authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", 
-				preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", WechatConfig.AUTH_REDIRECT_URI);
+		try {
+			authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", 
+					preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", URLEncoder.encode(WechatConfig.AUTH_REDIRECT_URI, "utf-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new AppSysException(e);
+		}
 		return authLink;
 	}
 
