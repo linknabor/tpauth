@@ -5,11 +5,19 @@ import java.util.List;
 
 public class Constants {
 
-	public static final String VERIFY_TICKET = "oaAuth_verifyTicket";
+	public static final String KEY_VERIFY_TICKET = "oaAuth_verifyTicket";
 	
-	public static final String COMPONENT_ACCESS_TOKEN = "oaAuth_componentAccessToken";
+	public static final String KEY_COMPONENT_ACCESS_TOKEN = "oaAuth_componentAccessToken";
 	
-	public static final String PRE_AUTH_CODE = "oaAuth_preAuthCode";
+	public static final String KEY_PRE_AUTH_CODE = "oaAuth_preAuthCode";
+	
+	public static final String KEY_AUTHORIZATION_CODE = "oaAuth_authorizationCode_";	//后面要拼接appId
+	
+	public static final String KEY_AUTHORIZER_ACCESS_TOKEN = "oaAuth_authorizerAccessToken_";	//后面要拼接appId
+	
+	public static final String KEY_AUTHORIZER_LIST = "oaAuth_authorizerList";	//所有被授权的公众号链表
+	
+	public static final String KEY_AUTH_QUEUE = "oaAuth_authorizationQueue";
 	
 	public static List<String> mobileDevices;
 	
@@ -22,4 +30,5 @@ public class Constants {
 		mobileDevices.add("windows phone");
 		
 	}
+	
 }

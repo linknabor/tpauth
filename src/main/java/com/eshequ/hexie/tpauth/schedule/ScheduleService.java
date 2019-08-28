@@ -2,6 +2,10 @@ package com.eshequ.hexie.tpauth.schedule;
 
 public interface ScheduleService {
 
-	public void updateComponentAccessToken();
+	void updateComponentAccessToken();
+
+	void updateAuthorizerAccessToken();
+
+	void handleAuthQueue();
 	
 }

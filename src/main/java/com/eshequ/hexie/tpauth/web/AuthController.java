@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -72,16 +73,34 @@ public class AuthController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping(value = "/client/auth", method = RequestMethod.POST)
+	@RequestMapping(value = "/client/auth", method = RequestMethod.GET)
 	public String clientAuth(HttpServletRequest request) {
 		
 		String vericode = request.getParameter("vericode");
+		Assert.hasText(vericode, "invalid request !");
 		String requestHead = request.getHeader("user-agent");
 		if (StringUtils.isEmpty(vericode)) {
 			throw new BusinessException("invalid request!");
 		}
 		String authLink = authService.clientAuth(requestHead);
 		return authLink;
+	}
+	
+	/**
+	 * 手动获取授权信息（被授权公众号的AccessToken等相关信息）,只有在authorization_code（1小时过期）没有过期的情况下。
+	 * 通常后台程序会自动出发，不需要手工取调用，留个口子
+	 * @param vericode
+	 * @return
+	 */
+	@RequestMapping(value = "/client/authorizationInfo", method = RequestMethod.GET)
+	public String authorizationInfo(@RequestParam(value = "vericode", required = true) String vericode,
+			@RequestParam(value = "authorizer_appid", required = true) String authorizerAppid) {
+		
+		Assert.hasText(vericode, "invalid request !");
+		Assert.hasText(authorizerAppid, "invalid request !");
+		authService.authorizationInfo("", authorizerAppid);
+		return WechatConfig.SUCCESS;
+		
 	}
 	
 

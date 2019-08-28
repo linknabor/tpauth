@@ -1,6 +1,8 @@
 package com.eshequ.hexie.tpauth;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,5 +61,13 @@ public class AuthApplicationTests {
 		System.out.println("a : " + alink);
 		System.out.println("b : " + blink);
 		
+	}
+	
+	@Test
+	public void testEncodeUrl() throws UnsupportedEncodingException {
+		
+		String url = "https://test.e-shequ.com/official/authSuccess.html";
+		url = URLEncoder.encode(url, "utf-8");
+		System.out.println(url);
 	}
 }
