@@ -8,7 +8,7 @@ public class WechatConfig {
 	
 	public final static String COMPONENT_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
 	
-	public final static String AUTHORIZER_ACCESS_TOKEN_URL = "https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token=s%" ;
+	public final static String AUTHORIZER_ACCESS_TOKEN_URL = "https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token=%s" ;
 	
 	public final static String PRE_AUTH_CODE_URL = "https://api.weixin.qq.com/cgi-bin/component/api_create_preauthcode?component_access_token=%s";
 	
