@@ -96,6 +96,10 @@ public class AuthServiceImpl implements AuthService{
 	public AuthorizerAccessToken getAuthorizerAccessToken(String authAppId, String authRefreshToken) {
 		
 		ComponentAcessToken componentAcessToken = getComponentAcessTokenFromCache();
+		logger.info("componentAcessToken is : " + componentAcessToken);
+		if (componentAcessToken == null || StringUtils.isEmpty(componentAcessToken.getComponentAcessToken())) {
+			return null;
+		}
 		String reqUrl = String.format(WechatConfig.AUTHORIZER_ACCESS_TOKEN_URL, componentAcessToken.getComponentAcessToken());
 		Map<String, String> postData = new HashMap<>();
 		postData.put("component_appid", componentAppid);
