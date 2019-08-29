@@ -32,8 +32,9 @@ public class AuthorizationInfo implements Serializable {
 	@JsonProperty("func_info")
 	private List<FuncscopeCategory> funcInfo;
 	
-	class FuncscopeCategory {
+	public static class FuncscopeCategory{
 		
+		@JsonProperty("id")
 		private String id;
 
 		public String getId() {

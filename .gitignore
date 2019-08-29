@@ -34,3 +34,4 @@ build/
 /.mvn/wrapper/maven-wrapper.properties
 /logs/auth/*.log
 /logs/tpauth/*.log
+refreshToken

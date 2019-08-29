@@ -30,6 +30,7 @@ import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
 import com.eshequ.hexie.tpauth.vo.AuthEvent;
 import com.eshequ.hexie.tpauth.vo.AuthRequest;
 import com.eshequ.hexie.tpauth.vo.AuthorizationInfo;
+import com.eshequ.hexie.tpauth.vo.AuthorizationResp;
 import com.eshequ.hexie.tpauth.vo.AuthorizerAccessToken;
 import com.eshequ.hexie.tpauth.vo.ComponentAcessToken;
 import com.eshequ.hexie.tpauth.vo.ComponentVerifyTicket;
@@ -54,7 +55,7 @@ public class AuthServiceImpl implements AuthService{
 	@Value("${component.aeskey}")
 	private String aeskey;
 	
-	@Value("$(wechat.cache.folder:f:/tpauth)")
+	@Value("${wechat.cache.folder:refreshToken}")
 	private String cacheFolder;
 	
 	@Autowired
@@ -234,11 +235,14 @@ public class AuthServiceImpl implements AuthService{
 		String componentAcessToken = cat.getComponentAcessToken();
 		
 		String reqUrl = String.format(WechatConfig.QUERY_AUTH_URL, componentAcessToken);
+//		reqUrl = "http://localhost:81/tpauth/test/queryAuth"; //TODO for test
 		Map<String, String> postData = new HashMap<>();
 		postData.put("component_appid", componentAppid);
 		postData.put("authorization_code", authorizationCode);
 		
-		AuthorizationInfo authorizationInfo = restUtil.postByJson(reqUrl, postData, AuthorizationInfo.class);
+		AuthorizationResp authorizationResp = restUtil.postByJson(reqUrl, postData, AuthorizationResp.class);
+		AuthorizationInfo authorizationInfo = authorizationResp.getAuthorizationInfo();
+		
 		if (authorizationInfo != null && !StringUtils.isEmpty(authorizationInfo.getAuthorizerAccessToken())) {
 			AuthorizerAccessToken authorizerAccessToken = new AuthorizerAccessToken();
 			BeanUtils.copyProperties(authorizationInfo, authorizerAccessToken);
@@ -252,7 +256,7 @@ public class AuthServiceImpl implements AuthService{
 				authList += "," + authorizationInfo.getAuthorizerAppid();
 			}
 			redisTemplate.opsForValue().set(Constants.KEY_AUTHORIZER_LIST, authList);	//缓存被授权的公众号列表
-			writeRefreshToken2File(authorizationInfo.getAuthorizerAppid(), authorizationInfo.getAuthorizerRefreshToken());
+			writeFile(authorizationInfo.getAuthorizerAppid(), authorizationInfo.getAuthorizerRefreshToken());
 		}
 		
 	}
@@ -272,7 +276,8 @@ public class AuthServiceImpl implements AuthService{
 	 * @param fileName
 	 * @param content
 	 */
-	private void writeRefreshToken2File(String fileName, String content) {
+	@Override
+	public void writeFile(String fileName, String content) {
 		
 		File tokenFolder = new File(cacheFolder);
 		if (!tokenFolder.exists()) {

@@ -103,5 +103,39 @@ public class AuthController {
 		
 	}
 	
+	/**
+	 * 挡板程序
+	 * @return
+	 */
+	@RequestMapping(value = "/test/queryAuth", method = RequestMethod.POST)
+	public String testQueryAuth() {
+		
+		String json = "{\r\n" + 
+				"\"authorization_info\": {\r\n" + 
+				"\"authorizer_appid\": \"wxf8b4f85f3a794e77\",\r\n" + 
+				"\"authorizer_access_token\": \"QXjUqNqfYVH0yBE1iI_7vuN_9gQbpjfK7hYwJ3P7xOa88a89-Aga5x1NMYJyB8G2yKt1KCl0nPC3W9GJzw0Zzq_dBxc8pxIGUNi_bFes0qM\",\r\n" + 
+				"\"expires_in\": 7200,\r\n" + 
+				"\"authorizer_refresh_token\": \"dTo-YCXPL4llX-u1W1pPpnp8Hgm4wpJtlR6iV0doKdY\",\r\n" + 
+				"\"func_info\": [\r\n" + 
+				"{\r\n" + 
+				"\"funcscope_category\": {\r\n" + 
+				"\"id\": 1\r\n" + 
+				"}\r\n" + 
+				"},\r\n" + 
+				"{\r\n" + 
+				"\"funcscope_category\": {\r\n" + 
+				"\"id\": 2\r\n" + 
+				"}\r\n" + 
+				"},\r\n" + 
+				"{\r\n" + 
+				"\"funcscope_category\": {\r\n" + 
+				"\"id\": 3\r\n" + 
+				"}\r\n" + 
+				"}\r\n" + 
+				"]\r\n" + 
+				"}}";
+		return json;
+	}
+	
 
 }

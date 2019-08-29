@@ -73,8 +73,12 @@ public class ScheduleServiceImpl implements ScheduleService {
 		
 		logger.info("start to check authorizer access token.");
 		String authList = (String) redisTemplate.opsForValue().get(Constants.KEY_AUTHORIZER_LIST);
-		
+		if (StringUtils.isEmpty(authList)) {
+			logger.warn("no auth list !");
+			return;
+		}
 		String[]authAppids = authList.split(",");
+		logger.info("auth list is :" + authList);
 		for (String authAppid : authAppids) {
 			try {
 				boolean updateFlag = false;

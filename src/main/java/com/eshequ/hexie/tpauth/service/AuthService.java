@@ -20,4 +20,6 @@ public interface AuthService {
 	ComponentAcessToken getComponentAcessTokenFromCache();
 
 	AuthorizerAccessToken getAuthorizerAccessToken(String authAppId, String authRefreshToken);
+
+	void writeFile(String fileName, String content);
 }
