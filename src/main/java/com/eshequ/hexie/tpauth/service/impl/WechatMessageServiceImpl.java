@@ -16,6 +16,7 @@ import com.eshequ.hexie.tpauth.util.RandomUtil;
 import com.eshequ.hexie.tpauth.util.RestUtil;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
 import com.eshequ.hexie.tpauth.vo.EventRequest;
+import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseMessage;
@@ -107,13 +108,23 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		String fromUserName = fromUserNode.asText();
 		String toUserName = toUserNode.asText();
 		
-		String respContent = "";
+		String reply = "";
 		if (WechatConfig.TEST_MSG_TEXT.equals(content)) {
-			respContent = content + "_callback";
+			String respContent = content + "_callback";
+			ResponseMessage responseMessage = new ResponseMessage();
+			responseMessage.setFromUserName(toUserName);
+			responseMessage.setToUserName(fromUserName);
+			responseMessage.setMsgType(WechatConfig.MSG_TYPE_TEXT);
+			responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
+			responseMessage.setContent(respContent);
+			String replyMsg = xmlMapper.writeValueAsString(responseMessage);
+			
+			WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
+			reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
+			logger.info("reply4TestPub, request conent :" + content + ", response content :" + replyMsg);
 			
 		}else if (content.indexOf(WechatConfig.TEST_MSG_TEXT2)>-1) {
 			String queryAuthCode = content.substring(content.indexOf(":")+1);
-			authService.authorizationInfo(queryAuthCode, WechatConfig.TEST_APP_ID);;
 			
 			Runnable run = ()->{
 				CsMessage csMessage = new CsMessage();
@@ -123,27 +134,19 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 				csText.setContent(queryAuthCode+"_from_api");
 				csMessage.setText(csText);
 				String reqUrl = WechatConfig.CUSTOM_MSG_URL;
+				AuthorizerAccessToken authorizerAccessToken = authService.getAuthorizerAccessTokenFromCache(WechatConfig.TEST_APP_ID);
+				reqUrl = reqUrl.replaceAll("ACCESS_TOKEN", authorizerAccessToken.getAuthorizerAccessToken());
 				String response = restutil.postByJson(reqUrl, csMessage, String.class);
 				logger.info("end sending cs msg, resp : " + response);
 			};
 			Thread t = new Thread(run);
 			t.start();
 			
-			respContent = "";
+			reply = "";
 			
 		}
-		ResponseMessage responseMessage = new ResponseMessage();
-		responseMessage.setFromUserName(toUserName);
-		responseMessage.setToUserName(fromUserName);
-		responseMessage.setMsgType(WechatConfig.MSG_TYPE_TEXT);
-		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
-		responseMessage.setContent(respContent);
-		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
 		
-		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
-		String encryptMsg = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
-		logger.info("reply4TestPub, request conent :" + content + ", response content :" + replyMsg);
-		return encryptMsg;
+		return reply;
 		
 	}
 	

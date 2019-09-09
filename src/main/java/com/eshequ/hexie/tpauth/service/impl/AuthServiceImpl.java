@@ -274,6 +274,18 @@ public class AuthServiceImpl implements AuthService{
 		ComponentAcessToken componentAcessToken = (ComponentAcessToken) redisTemplate.opsForValue().get(Constants.KEY_COMPONENT_ACCESS_TOKEN);
 		return componentAcessToken;
 	}
+	
+	/**
+	 * 从缓存中取AuthorizerAccessToken
+	 * @param appId
+	 * @return
+	 */
+	@Override
+	public AuthorizerAccessToken getAuthorizerAccessTokenFromCache(String appId) {
+		
+		AuthorizerAccessToken authorizerAccessToken = (AuthorizerAccessToken) redisTemplate.opsForValue().get(Constants.KEY_AUTHORIZER_ACCESS_TOKEN + appId);
+		return authorizerAccessToken;
+	}
 
 	/**
 	 * 将refreshtoken记录到文件，这个如果丢失了需要客户重新授权，比较麻烦，所以记文件里。这个工程没有数据库

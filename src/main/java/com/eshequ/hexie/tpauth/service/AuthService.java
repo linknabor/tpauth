@@ -22,5 +22,7 @@ public interface AuthService {
 	AuthorizerAccessToken getAuthorizerAccessToken(String authAppId, String authRefreshToken);
 
 	void writeFile(String fileName, String content);
+
+	AuthorizerAccessToken getAuthorizerAccessTokenFromCache(String appId);
 	
 }
