@@ -171,6 +171,14 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 	}
 	
+	/**
+	 * 普通文本消息回复
+	 * 测试用
+	 * @param decryptedContent
+	 * @return
+	 * @throws IOException
+	 * @throws AesException
+	 */
 	private String replyTextMsg(String decryptedContent) throws IOException, AesException {
 		
 		XmlMapper xmlMapper = new XmlMapper();
@@ -192,9 +200,9 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		responseMessage.setContent(respContent);
 		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
 		
-		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
+		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
-		logger.info("reply4TestPub, request conent :" + content + ", response content :" + replyMsg);
+		logger.info("replyTextMsg, request conent :" + content + ", response content :" + replyMsg);
 		return reply;
 	}
 	
