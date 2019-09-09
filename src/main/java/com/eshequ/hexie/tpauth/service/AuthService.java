@@ -3,13 +3,13 @@ package com.eshequ.hexie.tpauth.service;
 import java.io.IOException;
 
 import com.eshequ.hexie.tpauth.exception.AesException;
-import com.eshequ.hexie.tpauth.vo.AuthRequest;
-import com.eshequ.hexie.tpauth.vo.AuthorizerAccessToken;
-import com.eshequ.hexie.tpauth.vo.ComponentAcessToken;
+import com.eshequ.hexie.tpauth.vo.EventRequest;
+import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
+import com.eshequ.hexie.tpauth.vo.auth.ComponentAcessToken;
 
 public interface AuthService {
 	
-	void handleAuthEvent(AuthRequest authRequest) throws AesException, IOException;
+	void handleAuthEvent(EventRequest authRequest) throws AesException, IOException;
 
 	ComponentAcessToken getComponentAccessToken(String verifyTicket);
 	
@@ -22,4 +22,5 @@ public interface AuthService {
 	AuthorizerAccessToken getAuthorizerAccessToken(String authAppId, String authRefreshToken);
 
 	void writeFile(String fileName, String content);
+	
 }

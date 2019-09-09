@@ -1,4 +1,4 @@
-package com.eshequ.hexie.tpauth.vo;
+package com.eshequ.hexie.tpauth.vo.auth;
 
 import java.io.Serializable;
 

@@ -19,7 +19,7 @@ import com.eshequ.hexie.tpauth.common.WechatConfig;
 import com.eshequ.hexie.tpauth.exception.AesException;
 import com.eshequ.hexie.tpauth.exception.BusinessException;
 import com.eshequ.hexie.tpauth.service.AuthService;
-import com.eshequ.hexie.tpauth.vo.AuthRequest;
+import com.eshequ.hexie.tpauth.vo.EventRequest;
 
 @RestController
 public class AuthController {
@@ -49,23 +49,10 @@ public class AuthController {
 			@RequestParam(value = "encrypt_type", required = false) String encryptType,
 			@RequestParam(value = "msg_signature", required = false) String msgSignature) throws AesException, IOException {
 		
-		AuthRequest authRequest = new AuthRequest(signature, timeStamp, nonce, encryptType, msgSignature, requestXml);
+		EventRequest authRequest = new EventRequest(signature, timeStamp, nonce, encryptType, msgSignature, requestXml);
 		logger.info("auth event request is : " + authRequest);
 		authService.handleAuthEvent(authRequest);
 		return WechatConfig.SUCCESS;
-	}
-	
-	/**
-	 * 消息事件接收
-	 * @param requestXml
-	 * @return
-	 */
-	@RequestMapping(value = "/event/msg/*/", method = RequestMethod.POST)
-	public String msgEvent(@RequestBody String requestXml) {
-		
-		logger.info("msg event request : " + requestXml);
-		logger.info(requestXml);
-		return "a";
 	}
 	
 	/**

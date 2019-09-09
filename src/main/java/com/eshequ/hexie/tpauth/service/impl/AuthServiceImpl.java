@@ -27,14 +27,14 @@ import com.eshequ.hexie.tpauth.exception.BusinessException;
 import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.util.RestUtil;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
-import com.eshequ.hexie.tpauth.vo.AuthEvent;
-import com.eshequ.hexie.tpauth.vo.AuthRequest;
-import com.eshequ.hexie.tpauth.vo.AuthorizationInfo;
-import com.eshequ.hexie.tpauth.vo.AuthorizationResp;
-import com.eshequ.hexie.tpauth.vo.AuthorizerAccessToken;
-import com.eshequ.hexie.tpauth.vo.ComponentAcessToken;
-import com.eshequ.hexie.tpauth.vo.ComponentVerifyTicket;
-import com.eshequ.hexie.tpauth.vo.PreAuthCode;
+import com.eshequ.hexie.tpauth.vo.EventRequest;
+import com.eshequ.hexie.tpauth.vo.auth.AuthEvent;
+import com.eshequ.hexie.tpauth.vo.auth.AuthorizationInfo;
+import com.eshequ.hexie.tpauth.vo.auth.AuthorizationResp;
+import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
+import com.eshequ.hexie.tpauth.vo.auth.ComponentAcessToken;
+import com.eshequ.hexie.tpauth.vo.auth.ComponentVerifyTicket;
+import com.eshequ.hexie.tpauth.vo.auth.PreAuthCode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
@@ -135,9 +135,9 @@ public class AuthServiceImpl implements AuthService{
 	 * 处理授权通知
 	 */
 	@Override
-	public void handleAuthEvent(AuthRequest authRequest) throws AesException, IOException {
+	public void handleAuthEvent(EventRequest eventRequest) throws AesException, IOException {
 
-		String formattedXml = authRequest.getPostData().replaceAll("\r", "").replaceAll("\n", "").
+		String formattedXml = eventRequest.getPostData().replaceAll("\r", "").replaceAll("\n", "").
 				replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
 		
 		XmlMapper xmlMapper = new XmlMapper();
@@ -152,8 +152,8 @@ public class AuthServiceImpl implements AuthService{
 		String encryptStr = encryptNode.asText();
 		
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
-		String decryptedContent = msgCrypt.decryptMsg(authRequest.getMsg_signature(), authRequest.getTimestamp(), 
-				authRequest.getNonce(), encryptStr);
+		String decryptedContent = msgCrypt.decryptMsg(eventRequest.getMsg_signature(), eventRequest.getTimestamp(), 
+				eventRequest.getNonce(), encryptStr);
 		
 		logger.info("decrypted content : " + decryptedContent);	//解密后的内容，是个xml
 		
@@ -304,5 +304,5 @@ public class AuthServiceImpl implements AuthService{
 			}
 		}
 	}
-	
+
 }

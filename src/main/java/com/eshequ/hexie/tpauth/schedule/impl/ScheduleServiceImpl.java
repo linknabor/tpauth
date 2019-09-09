@@ -11,10 +11,10 @@ import org.springframework.util.StringUtils;
 import com.eshequ.hexie.tpauth.common.Constants;
 import com.eshequ.hexie.tpauth.schedule.ScheduleService;
 import com.eshequ.hexie.tpauth.service.AuthService;
-import com.eshequ.hexie.tpauth.vo.AuthEvent;
-import com.eshequ.hexie.tpauth.vo.AuthorizerAccessToken;
-import com.eshequ.hexie.tpauth.vo.ComponentAcessToken;
-import com.eshequ.hexie.tpauth.vo.ComponentVerifyTicket;
+import com.eshequ.hexie.tpauth.vo.auth.AuthEvent;
+import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
+import com.eshequ.hexie.tpauth.vo.auth.ComponentAcessToken;
+import com.eshequ.hexie.tpauth.vo.auth.ComponentVerifyTicket;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {

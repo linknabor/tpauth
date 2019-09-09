@@ -2,7 +2,7 @@ package com.eshequ.hexie.tpauth.vo;
 
 import java.io.Serializable;
 
-public class AuthRequest implements Serializable {
+public class EventRequest implements Serializable {
 
 	/**
 	 * 
@@ -16,7 +16,7 @@ public class AuthRequest implements Serializable {
 	private String msg_signature;
 	private String postData;
 	
-	public AuthRequest(String signature, String timestamp, String nonce, String encrypt_type, String msg_signature,
+	public EventRequest(String signature, String timestamp, String nonce, String encrypt_type, String msg_signature,
 			String postData) {
 		super();
 		this.signature = signature;

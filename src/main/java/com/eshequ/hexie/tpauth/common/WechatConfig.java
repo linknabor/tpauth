@@ -26,4 +26,13 @@ public class WechatConfig {
 	
 	public final static String AUTH_REDIRECT_URI = "https://test.e-shequ.com/official/authSuccess.html";
 	
+	public final static String MSG_TYPE_TEXT = "text";
+	
+	public final static String TEST_APP_ID = "wx570bc396a51b8ff8";
+	
+	public final static String TEST_USERNAME = "gh_3c884a361561";
+	
+	public final static String TEST_MSG_TEXT = "TESTCOMPONENT_MSG_TYPE_TEXT";
+	
+	public final static String CUSTOM_MSG_URL = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=ACCESS_TOKEN";
 }
