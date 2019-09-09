@@ -16,6 +16,7 @@ import com.eshequ.hexie.tpauth.util.RandomUtil;
 import com.eshequ.hexie.tpauth.util.RestUtil;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
 import com.eshequ.hexie.tpauth.vo.EventRequest;
+import com.eshequ.hexie.tpauth.vo.WechatResponse;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
@@ -136,8 +137,8 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 				String reqUrl = WechatConfig.CUSTOM_MSG_URL;
 				AuthorizerAccessToken authorizerAccessToken = authService.getAuthorizerAccessTokenFromCache(WechatConfig.TEST_APP_ID);
 				reqUrl = reqUrl.replaceAll("ACCESS_TOKEN", authorizerAccessToken.getAuthorizerAccessToken());
-				String response = restutil.postByJson(reqUrl, csMessage, String.class);
-				logger.info("end sending cs msg, resp : " + response);
+				WechatResponse wechatResponse = restutil.postByJson(reqUrl, csMessage, WechatResponse.class);
+				logger.info("wechatResponse : " + wechatResponse);
 			};
 			Thread t = new Thread(run);
 			t.start();
