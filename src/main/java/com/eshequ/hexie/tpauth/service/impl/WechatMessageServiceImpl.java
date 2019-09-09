@@ -79,10 +79,15 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 				response = reply4TestPub(decryptedContent);
 			}else {
 				
-				JsonNode typeNode = rootNode.path("MsgType");
+				JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
+
+				JsonNode typeNode = decryptRoot.path("MsgType");
+				if (typeNode == null) {
+					throw new BusinessException("invalid message! no MsgType node !");
+				}
 				String msgType = typeNode.asText();
-				
 				logger.info("msgType : " + msgType);
+				
 				switch (msgType) {
 				case WechatConfig.MSG_TYPE_TEXT:
 					response = replyTextMsg(decryptedContent);
