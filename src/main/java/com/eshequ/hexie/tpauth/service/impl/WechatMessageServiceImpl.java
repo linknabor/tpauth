@@ -62,7 +62,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			JsonNode rootNode = xmlMapper.readTree(formattedXml);	//解析xml
 			JsonNode userNode = rootNode.path("ToUserName");		//toUserName节点
 			JsonNode encryptNode = rootNode.path("Encrypt");	//取出打了码的内容部分节点
-			
 			String encryptStr = encryptNode.asText();
 			
 			WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
@@ -78,6 +77,21 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			
 			if (WechatConfig.TEST_USERNAME.equals(toUserName)) {
 				response = reply4TestPub(decryptedContent);
+			}else {
+				
+				JsonNode typeNode = rootNode.path("MsgType");
+				String msgType = typeNode.asText();
+				
+				logger.info("msgType : " + msgType);
+				switch (msgType) {
+				case WechatConfig.MSG_TYPE_TEXT:
+					response = replyTextMsg(decryptedContent);
+					break;
+
+				default:
+					break;
+				}
+				
 			}
 			
 		} catch (Exception e) {
@@ -150,6 +164,33 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		return reply;
 		
+	}
+	
+	private String replyTextMsg(String decryptedContent) throws IOException, AesException {
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
+
+		JsonNode contentNode = decryptRoot.path("Content");
+		String content = contentNode.asText();
+		JsonNode fromUserNode = decryptRoot.path("FromUserName");
+		JsonNode toUserNode = decryptRoot.path("ToUserName");
+		String fromUserName = fromUserNode.asText();
+		String toUserName = toUserNode.asText();
+		
+		String respContent = content + "_callback";
+		ResponseMessage responseMessage = new ResponseMessage();
+		responseMessage.setFromUserName(toUserName);
+		responseMessage.setToUserName(fromUserName);
+		responseMessage.setMsgType(WechatConfig.MSG_TYPE_TEXT);
+		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
+		responseMessage.setContent(respContent);
+		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
+		
+		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
+		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
+		logger.info("reply4TestPub, request conent :" + content + ", response content :" + replyMsg);
+		return reply;
 	}
 	
 
