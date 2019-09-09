@@ -216,22 +216,22 @@ public class WXBizMsgCrypt {
 	 * @return 加密后的可以直接回复用户的密文，包括msg_signature, timestamp, nonce, encrypt的xml格式的字符串
 	 * @throws AesException 执行失败，请查看该异常的错误码和具体的错误信息
 	 */
-//	public String encryptMsg(String replyMsg, String timeStamp, String nonce) throws AesException {
-//		// 加密
-//		String encrypt = encrypt(getRandomStr(), replyMsg);
-//
-//		// 生成安全签名
-//		if (timeStamp == "") {
-//			timeStamp = Long.toString(System.currentTimeMillis());
-//		}
-//
-//		String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt);
-//
-//		// System.out.println("发送给平台的签名是: " + signature[1].toString());
-//		// 生成发送的xml
-//		String result = XMLParse.generate(encrypt, signature, timeStamp, nonce);
-//		return result;
-//	}
+	public String encryptMsg(String replyMsg, String timeStamp, String nonce) throws AesException {
+		// 加密
+		String encrypt = encrypt(getRandomStr(), replyMsg);
+
+		// 生成安全签名
+		if (timeStamp == "") {
+			timeStamp = Long.toString(System.currentTimeMillis());
+		}
+
+		String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt);
+
+		// System.out.println("发送给平台的签名是: " + signature[1].toString());
+		// 生成发送的xml
+		String result = generateReplyXml(encrypt, signature, timeStamp, nonce);
+		return result;
+	}
 
 	/**
 	 * 检验消息的真实性，并且获取解密后的明文.
@@ -286,6 +286,23 @@ public class WXBizMsgCrypt {
 
 		String result = decrypt(echoStr);
 		return result;
+	}
+	
+	/**
+	 * 生成消息加密后的xml
+	 * @param encrypt
+	 * @param signature
+	 * @param timestamp
+	 * @param nonce
+	 * @return
+	 */
+	public static String generateReplyXml(String encrypt, String signature, String timestamp, String nonce) {
+
+		String format = "<xml>\n" + "<Encrypt><![CDATA[%1$s]]></Encrypt>\n"
+				+ "<MsgSignature><![CDATA[%2$s]]></MsgSignature>\n"
+				+ "<TimeStamp>%3$s</TimeStamp>\n" + "<Nonce><![CDATA[%4$s]]></Nonce>\n" + "</xml>";
+		return String.format(format, encrypt, signature, timestamp, nonce);
+
 	}
 
 }

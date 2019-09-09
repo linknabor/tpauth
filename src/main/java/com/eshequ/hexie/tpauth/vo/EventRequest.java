@@ -66,10 +66,11 @@ public class EventRequest implements Serializable {
 
 	@Override
 	public String toString() {
-		return "AuthRequest [signature=" + signature + ", timestamp=" + timestamp + ", nonce=" + nonce
+		return "EventRequest [signature=" + signature + ", timestamp=" + timestamp + ", nonce=" + nonce
 				+ ", encrypt_type=" + encrypt_type + ", msg_signature=" + msg_signature + ", postData=" + postData
 				+ "]";
 	}
+
 	
 	
 	

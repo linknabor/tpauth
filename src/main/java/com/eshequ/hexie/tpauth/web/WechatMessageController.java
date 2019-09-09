@@ -36,7 +36,7 @@ public class WechatMessageController {
 		EventRequest eventRequest = new EventRequest(msgSignature, timeStamp, nonce, 
 				encryptType, msgSignature, postData);
 		logger.info("event msg : " + eventRequest);
-		messageService.handleMsgEvent(eventRequest);
-		return "";
+		String responeMsg = messageService.handleMsgEvent(eventRequest);
+		return responeMsg;
 	}
 }

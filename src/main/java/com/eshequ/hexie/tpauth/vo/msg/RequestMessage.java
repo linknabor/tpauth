@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Message implements Serializable {
+public class RequestMessage implements Serializable {
 
 /**
 	 * 
