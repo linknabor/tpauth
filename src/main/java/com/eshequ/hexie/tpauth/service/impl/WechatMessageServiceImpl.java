@@ -3,15 +3,15 @@ package com.eshequ.hexie.tpauth.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-import com.eshequ.hexie.tpauth.common.WechatConfig;
 import com.eshequ.hexie.tpauth.exception.BusinessException;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
 import com.eshequ.hexie.tpauth.vo.EventRequest;
-import com.eshequ.hexie.tpauth.vo.msg.Message;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
+@Service
 public class WechatMessageServiceImpl implements WechatMessageService {
 
 	private Logger logger = LoggerFactory.getLogger(WechatMessageServiceImpl.class);
