@@ -12,6 +12,7 @@ import com.eshequ.hexie.tpauth.common.WechatConfig;
 import com.eshequ.hexie.tpauth.exception.AesException;
 import com.eshequ.hexie.tpauth.exception.BusinessException;
 import com.eshequ.hexie.tpauth.service.AuthService;
+import com.eshequ.hexie.tpauth.service.WechatMessageService;
 import com.eshequ.hexie.tpauth.util.RandomUtil;
 import com.eshequ.hexie.tpauth.util.RestUtil;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
@@ -64,7 +65,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			JsonNode encryptNode = rootNode.path("Encrypt");	//取出打了码的内容部分节点
 			String encryptStr = encryptNode.asText();
 			
-			WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
+			WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 			String decryptedContent = msgCrypt.decryptMsg(eventRequest.getMsg_signature(), eventRequest.getTimestamp(), 
 					eventRequest.getNonce(), encryptStr);
 			

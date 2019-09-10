@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.eshequ.hexie.tpauth.service.impl.WechatMessageService;
+import com.eshequ.hexie.tpauth.service.WechatMessageService;
 import com.eshequ.hexie.tpauth.vo.EventRequest;
 
 @RestController
@@ -25,7 +25,7 @@ public class WechatMessageController {
 	 * @param requestXml
 	 * @return
 	 */
-	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST)
+	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {"application/xml; charset=UTF-8"})
 	public String msgEvent(@RequestBody String postData, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,

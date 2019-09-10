@@ -252,11 +252,10 @@ public class WXBizMsgCrypt {
 	public String decryptMsg(String msgSignature, String timeStamp, String nonce, String encrypt)
 			throws AesException {
 
-		//TODO 签名验证有问题，skip了
 //		// 验证安全签名
-//		String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt[1].toString());
-//
-//		// 和URL中的签名比较是否相等
+//		String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt);
+
+		// 和URL中的签名比较是否相等
 //		if (!signature.equals(msgSignature)) {
 //			throw new AesException(AesException.ValidateSignatureError);
 //		}

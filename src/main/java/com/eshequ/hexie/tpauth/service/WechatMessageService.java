@@ -1,4 +1,4 @@
-package com.eshequ.hexie.tpauth.service.impl;
+package com.eshequ.hexie.tpauth.service;
 
 import com.eshequ.hexie.tpauth.vo.EventRequest;
 
