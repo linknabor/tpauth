@@ -253,12 +253,12 @@ public class WXBizMsgCrypt {
 			throws AesException {
 
 //		// 验证安全签名
-//		String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt);
+		String signature = SHA1.getSHA1(token, timeStamp, nonce, encrypt);
 
 		// 和URL中的签名比较是否相等
-//		if (!signature.equals(msgSignature)) {
+		if (!signature.equals(msgSignature)) {
 //			throw new AesException(AesException.ValidateSignatureError);
-//		}
+		}
 
 		// 解密
 		String result = decrypt(encrypt);

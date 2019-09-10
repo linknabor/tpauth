@@ -12,6 +12,9 @@ public class ResponseMessage implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1382872544724162262L;
+	
+	private static final String CDATA_BEGIN = "![CDATA[";
+	private static final String CDATA_END = "]]";
 
 	@JsonProperty("ToUserName")
 	private String toUserName;
@@ -27,13 +30,13 @@ public class ResponseMessage implements Serializable {
 		return toUserName;
 	}
 	public void setToUserName(String toUserName) {
-		this.toUserName = toUserName;
+		this.toUserName = CDATA_BEGIN + toUserName + CDATA_END;
 	}
 	public String getFromUserName() {
 		return fromUserName;
 	}
 	public void setFromUserName(String fromUserName) {
-		this.fromUserName = fromUserName;
+		this.fromUserName = CDATA_BEGIN + fromUserName + CDATA_END;
 	}
 	public String getCreateTime() {
 		return createTime;
@@ -45,13 +48,13 @@ public class ResponseMessage implements Serializable {
 		return msgType;
 	}
 	public void setMsgType(String msgType) {
-		this.msgType = msgType;
+		this.msgType = CDATA_BEGIN + msgType + CDATA_END;
 	}
 	public String getContent() {
 		return content;
 	}
 	public void setContent(String content) {
-		this.content = content;
+		this.content = CDATA_BEGIN + content + CDATA_END;
 	}
 	@Override
 	public String toString() {
