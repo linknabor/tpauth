@@ -143,7 +143,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(componetSecret, aeskey, componentAppid);
 			reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
 			logger.info("reply4TestPub, request conent :" + content + ", response content :" + replyMsg);
-			reply = replyMsg;
 			
 		}else if (content.indexOf(WechatConfig.TEST_MSG_TEXT2)>-1) {
 			String queryAuthCode = content.substring(content.indexOf(":")+1);
