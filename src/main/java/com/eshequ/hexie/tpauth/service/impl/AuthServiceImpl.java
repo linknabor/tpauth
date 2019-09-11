@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -59,7 +60,12 @@ public class AuthServiceImpl implements AuthService{
 	private String cacheFolder;
 	
 	@Autowired
+	@Qualifier(value = "redisTemplate")
 	private RedisTemplate<String, Object> redisTemplate;
+	
+	@Autowired
+	@Qualifier(value = "hexieRedisTemplate")
+	private RedisTemplate<String, Object> hexieRedisTemplate;
 	
 	@Autowired
 	private RestUtil restUtil;
@@ -253,6 +259,11 @@ public class AuthServiceImpl implements AuthService{
 			authorizerAccessToken.setCreateTime(System.currentTimeMillis());
 			String authTokenKey = Constants.KEY_AUTHORIZER_ACCESS_TOKEN+authorizationInfo.getAuthorizerAppid();
 			redisTemplate.opsForValue().set(authTokenKey, authorizerAccessToken);	//将授权公众号的accessToken缓存起来
+			try {
+				hexieRedisTemplate.opsForValue().set(authTokenKey, authorizerAccessToken.getAuthorizerAccessToken());	//给合协公众号设置授权了的AccessToken
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 			String authList = (String) redisTemplate.opsForValue().get(Constants.KEY_AUTHORIZER_LIST);
 			if (StringUtils.isEmpty(authList)) {
 				authList = authorizationInfo.getAuthorizerAppid();

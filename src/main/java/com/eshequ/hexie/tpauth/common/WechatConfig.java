@@ -39,4 +39,6 @@ public class WechatConfig {
 	public final static String TEST_MSG_TEXT2 = "QUERY_AUTH_CODE";
 	
 	public final static String CUSTOM_MSG_URL = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=ACCESS_TOKEN";
+	
+	public final static String UPDATE_MENU_URL = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN";
 }

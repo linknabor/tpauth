@@ -3,6 +3,7 @@ package com.eshequ.hexie.tpauth.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisPassword;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -22,7 +23,7 @@ public class RedisConfig {
 	private String password;
 	@Value("${redis.database}")
 	private Integer database;
-
+	
 	@Bean
 	public RedisStandaloneConfiguration redisStandaloneConfiguration() {
 
@@ -35,6 +36,7 @@ public class RedisConfig {
 	}
 
 	@Bean
+	@Primary
 	public LettuceConnectionFactory lettuceConnectionFactory(RedisStandaloneConfiguration redisStandaloneConfiguration) {
 		LettuceConnectionFactory factory = new LettuceConnectionFactory(redisStandaloneConfiguration);
 		return factory;
@@ -45,7 +47,7 @@ public class RedisConfig {
 	 * @param lettuceConnectionFactory
 	 * @return
 	 */
-	@Bean
+	@Bean(name = "redisTemplate")
 	public RedisTemplate<String, Object> redisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
 
 		RedisTemplate<String, Object> template = new RedisTemplate<>();
@@ -59,11 +61,21 @@ public class RedisConfig {
 		return template;
 	}
 
-	@Bean
+	@Bean(name = "stringRedisTemplate")
 	public StringRedisTemplate stringRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
 		StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
 		stringRedisTemplate.setConnectionFactory(lettuceConnectionFactory);
 		return stringRedisTemplate;
 	}
+	
+	@Bean
+	public StringRedisSerializer stringRedisSerializer() {
+		
+		StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
+		return stringRedisSerializer;
+		
+	}
+	
+	
 
 }

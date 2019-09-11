@@ -3,6 +3,7 @@ package com.eshequ.hexie.tpauth.schedule.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,13 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleServiceImpl.class);
 	
 	@Autowired
+	@Qualifier(value = "redisTemplate")
 	private RedisTemplate<String, Object> redisTemplate;
+	
+	@Autowired
+	@Qualifier(value = "hexieRedisTemplate")
+	private RedisTemplate<String, Object> hexieRedisTemplate;
+	
 	@Autowired
 	private AuthService authService;
 	
@@ -81,8 +88,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 		logger.info("auth list is :" + authList);
 		for (String authAppid : authAppids) {
 			try {
+				String authTokenKey = Constants.KEY_AUTHORIZER_ACCESS_TOKEN + authAppid;
 				boolean updateFlag = false;
-				AuthorizerAccessToken aat = (AuthorizerAccessToken) redisTemplate.opsForValue().get(Constants.KEY_AUTHORIZER_ACCESS_TOKEN + authAppid);
+				AuthorizerAccessToken aat = (AuthorizerAccessToken) redisTemplate.opsForValue().get(authTokenKey);
 				if (aat == null || StringUtils.isEmpty(aat.getAuthorizerAccessToken())) {
 					updateFlag = true;
 				}else {
@@ -100,7 +108,12 @@ public class ScheduleServiceImpl implements ScheduleService {
 					}
 					aat = authService.getAuthorizerAccessToken(authAppid, aat.getAuthorizerRefreshToken());
 					aat.setCreateTime(System.currentTimeMillis());
-					redisTemplate.opsForValue().set(Constants.KEY_AUTHORIZER_ACCESS_TOKEN + authAppid, aat);
+					redisTemplate.opsForValue().set(authTokenKey, aat);
+					try {
+						hexieRedisTemplate.opsForValue().set(authTokenKey, aat.getAuthorizerAccessToken());	//给合协公众号设置授权了的AccessToken
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
 					logger.info("save authorizer access token into redis, auth appId : " + authAppid);
 				}
 			} catch (Exception e) {
