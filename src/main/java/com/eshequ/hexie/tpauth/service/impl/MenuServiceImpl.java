@@ -65,7 +65,7 @@ public class MenuServiceImpl implements MenuService {
 		AuthorizerAccessToken authorizerAccessToken = authService.getAuthorizerAccessTokenFromCache(appId);
 		String accessToken = authorizerAccessToken.getAuthorizerAccessToken();
 		String reqUrl = WechatConfig.UPDATE_MENU_URL.replaceAll("ACCESS_TOKEN", accessToken);
-		WechatResponse wechatResponse = restUti.postByJson(reqUrl, json, WechatResponse.class);
+		WechatResponse wechatResponse = restUti.postByJson(reqUrl, map, WechatResponse.class);
 		logger.info("wechatResponse is : " + wechatResponse);
 	}
 

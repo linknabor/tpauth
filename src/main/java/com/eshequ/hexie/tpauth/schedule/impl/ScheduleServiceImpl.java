@@ -64,6 +64,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 			cat = authService.getComponentAccessToken(verifyTicket.getVerifyTicket());
 			cat.setCreateTime(System.currentTimeMillis());
 			redisTemplate.opsForValue().set(Constants.KEY_COMPONENT_ACCESS_TOKEN, cat);
+			hexieRedisTemplate.opsForValue().set(Constants.KEY_COMPONENT_ACCESS_TOKEN, cat.getComponentAcessToken());
 			logger.info("save component access token into redis .");
 		}
 		logger.info("end checking component access token.");
