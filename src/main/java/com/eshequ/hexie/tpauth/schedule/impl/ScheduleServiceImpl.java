@@ -38,7 +38,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	 * 获取componentAccessToken(平台token)，每隔5分钟一次，如果token未超时，则不更新。
 	 * token每2小时超时，大于1小时50分的时候更新
 	 */
-	@Scheduled(cron = "0 0/60 * * * ?")
+	@Scheduled(cron = "0 0/30 * * * ?")
 	@Override
 	public void updateComponentAccessToken() {
 		
@@ -75,7 +75,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	 * 获取authorizerAccessToken(被授权方的 token)，每隔5分钟一次，如果token未超时，则不更新。
 	 * token每2小时超时，大于1小时50分的时候更新
 	 */
-	@Scheduled(cron = "0 0/60 * * * ?")
+	@Scheduled(cron = "0 0/30 * * * ?")
 	@Override
 	public void updateAuthorizerAccessToken() {
 		
