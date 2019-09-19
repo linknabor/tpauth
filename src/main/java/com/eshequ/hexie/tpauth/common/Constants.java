@@ -15,7 +15,7 @@ public class Constants {
 	
 	public static final String KEY_AUTHORIZER_ACCESS_TOKEN = "oaAuth_authorizerAccessToken_";	//后面要拼接appId
 	
-	public static final String KEY_AUTHORIZER_JS_TICKET = "oaAuth_JsTicket_";	//后面要拼接appId
+	public static final String KEY_AUTHORIZER_JS_TICKET = "oaAuth_authorizerJsTicket_";	//后面要拼接appId
 	
 	public static final String KEY_AUTHORIZER_LIST = "oaAuth_authorizerList";	//所有被授权的公众号链表
 	
