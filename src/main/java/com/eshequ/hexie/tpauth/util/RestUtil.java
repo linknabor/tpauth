@@ -29,6 +29,25 @@ public class RestUtil {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	public <T> T getByJson(String reqUrl, Class<T> respClazz) {
+		
+		logger.info("request url : " + reqUrl);
+		ResponseEntity<String> resp = restTemplate.getForEntity(reqUrl, String.class, "");
+		logger.info("response : " + resp);
+		HttpStatus httpStatus = resp.getStatusCode();
+		T t = null;
+		if (HttpStatus.OK.equals(httpStatus) ) {
+			try {
+				t = objectMapper.readValue(resp.getBody(), respClazz);
+			} catch (Exception e) {
+				throw new AppSysException(e);
+			}
+		}else {
+			throw new BusinessException("request failed, code : " + httpStatus);
+		}
+		return t;
+	}
+	
 
 	/**
 	 * 参数在body中的post
