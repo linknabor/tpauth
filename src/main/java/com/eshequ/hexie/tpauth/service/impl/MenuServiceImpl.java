@@ -37,7 +37,7 @@ public class MenuServiceImpl implements MenuService {
 	private ObjectMapper objectMapper;
 
 	@Override
-	public void addMenu(List<MenuRequest> menuList) throws JsonProcessingException {
+	public void addMenu(String appId, List<MenuRequest> menuList) throws JsonProcessingException {
 
 		Assert.notEmpty(menuList, "新增菜单不能为空。");
 	
@@ -61,7 +61,6 @@ public class MenuServiceImpl implements MenuService {
 		String json = objectMapper.writeValueAsString(map);
 		logger.info(json);
 		
-		String appId = "wxa48ca61b68163483";	//TODO 先写死
 		AuthorizerAccessToken authorizerAccessToken = authService.getAuthorizerAccessTokenFromCache(appId);
 		String accessToken = authorizerAccessToken.getAuthorizerAccessToken();
 		String reqUrl = WechatConfig.UPDATE_MENU_URL.replaceAll("ACCESS_TOKEN", accessToken);
