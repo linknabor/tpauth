@@ -59,6 +59,9 @@ public class AuthServiceImpl implements AuthService{
 	@Value("${wechat.cache.folder:refreshToken}")
 	private String cacheFolder;
 	
+	@Value("${auth.redirectUri}")
+	private String authRedirectUri;
+	
 	@Autowired
 	@Qualifier(value = "redisTemplate")
 	private RedisTemplate<String, Object> redisTemplate;
@@ -220,7 +223,7 @@ public class AuthServiceImpl implements AuthService{
 
 		try {
 			authLink = authLink.replaceAll("COMPONENT_APPID", componentAppid).replaceAll("PRE_AUTH_CODE", 
-					preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", URLEncoder.encode(WechatConfig.AUTH_REDIRECT_URI, "utf-8"));
+					preAuthCode.getPreAuthCode()).replaceAll("REDIRECT_URI", URLEncoder.encode(authRedirectUri, "utf-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new AppSysException(e);
 		}
