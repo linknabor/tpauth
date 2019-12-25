@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.eshequ.hexie.tpauth.exception.AppSysException;
@@ -73,40 +72,6 @@ public class RestUtil {
 		logger.info("post data : " + httpEntity);
 		
 		ResponseEntity<String> resp = restTemplate.postForEntity(reqUrl, httpEntity, String.class);	//先用String，接收进来看下response是什么。直接指定泛型可能会转成空
-		
-		logger.info("response : " + resp);
-		HttpStatus httpStatus = resp.getStatusCode();
-		T t = null;
-		if (HttpStatus.OK.equals(httpStatus) ) {
-			try {
-				t = objectMapper.readValue(resp.getBody(), respClazz);
-			} catch (Exception e) {
-				throw new AppSysException(e);
-			}
-		}else {
-			throw new BusinessException("request failed, code : " + httpStatus);
-		}
-		return t;
-		
-	}
-	
-	/**
-	 * 参数带在URL上的post
-	 * @param reqUrl
-	 * @param postData
-	 * @param respClazz
-	 * @return
-	 */
-	public <T> T postByForm(String reqUrl, LinkedMultiValueMap<String, String> postData, Class<T> respClazz){
-		
-		HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        HttpEntity<Object> httpEntity = new HttpEntity<>(postData, headers);
-        
-        logger.info("request url : " + reqUrl);
-        logger.info("post data : " + httpEntity);
-        
-		ResponseEntity<String> resp = restTemplate.postForEntity(reqUrl, httpEntity, String.class);
 		
 		logger.info("response : " + resp);
 		HttpStatus httpStatus = resp.getStatusCode();

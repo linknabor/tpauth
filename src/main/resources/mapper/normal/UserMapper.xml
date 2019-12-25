@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eshequ.hexie.tpauth.mapper.normal.UserMapper">
+  <resultMap id="BaseResultMap" type="com.eshequ.hexie.tpauth.model.User">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="age" jdbcType="INTEGER" property="age" />
+    <result column="city" jdbcType="VARCHAR" property="city" />
+    <result column="cityId" jdbcType="BIGINT" property="cityid" />
+    <result column="country" jdbcType="VARCHAR" property="country" />
+    <result column="countyId" jdbcType="BIGINT" property="countyid" />
+    <result column="createDate" jdbcType="BIGINT" property="createdate" />
+    <result column="currentAddrId" jdbcType="BIGINT" property="currentaddrid" />
+    <result column="headimgurl" jdbcType="VARCHAR" property="headimgurl" />
+    <result column="identityCard" jdbcType="VARCHAR" property="identitycard" />
+    <result column="language" jdbcType="VARCHAR" property="language" />
+    <result column="latitude" jdbcType="DOUBLE" property="latitude" />
+    <result column="longitude" jdbcType="DOUBLE" property="longitude" />
+    <result column="lvdou" jdbcType="INTEGER" property="lvdou" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="openid" jdbcType="VARCHAR" property="openid" />
+    <result column="province" jdbcType="VARCHAR" property="province" />
+    <result column="provinceId" jdbcType="BIGINT" property="provinceid" />
+    <result column="sex" jdbcType="INTEGER" property="sex" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="subscribe" jdbcType="INTEGER" property="subscribe" />
+    <result column="subscribe_time" jdbcType="TIMESTAMP" property="subscribeTime" />
+    <result column="tel" jdbcType="VARCHAR" property="tel" />
+    <result column="wuyeId" jdbcType="VARCHAR" property="wuyeid" />
+    <result column="xiaoquId" jdbcType="BIGINT" property="xiaoquid" />
+    <result column="xiaoquName" jdbcType="VARCHAR" property="xiaoquname" />
+    <result column="zhima" jdbcType="INTEGER" property="zhima" />
+    <result column="realName" jdbcType="VARCHAR" property="realname" />
+    <result column="county" jdbcType="VARCHAR" property="county" />
+    <result column="registerDate" jdbcType="BIGINT" property="registerdate" />
+    <result column="couponCount" jdbcType="INTEGER" property="couponcount" />
+    <result column="shareCode" jdbcType="VARCHAR" property="sharecode" />
+    <result column="newRegiste" jdbcType="BIT" property="newregiste" />
+    <result column="officeTel" jdbcType="VARCHAR" property="officetel" />
+    <result column="total_bind" jdbcType="INTEGER" property="totalBind" />
+    <result column="cspId" jdbcType="VARCHAR" property="cspid" />
+    <result column="sectId" jdbcType="VARCHAR" property="sectid" />
+    <result column="appId" jdbcType="VARCHAR" property="appid" />
+    <result column="oriSys" jdbcType="VARCHAR" property="orisys" />
+    <result column="oriUserId" jdbcType="BIGINT" property="oriuserid" />
+    <result column="totalBind" jdbcType="INTEGER" property="totalbind" />
+  </resultMap>
+</mapper>

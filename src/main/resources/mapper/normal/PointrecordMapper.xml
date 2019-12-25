@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.eshequ.hexie.tpauth.mapper.normal.PointrecordMapper">
+  <resultMap id="BaseResultMap" type="com.eshequ.hexie.tpauth.model.Pointrecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="createDate" jdbcType="BIGINT" property="createdate" />
+    <result column="keyStr" jdbcType="VARCHAR" property="keystr" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="point" jdbcType="INTEGER" property="point" />
+    <result column="reason" jdbcType="INTEGER" property="reason" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="userId" jdbcType="BIGINT" property="userid" />
+  </resultMap>
+</mapper>
