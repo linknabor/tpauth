@@ -1,5 +1,7 @@
 package com.eshequ.hexie.tpauth.web;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,14 +28,22 @@ public class WechatMessageController {
 	 * @return
 	 */
 	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {"application/xml; charset=UTF-8"})
-	public String msgEvent(@RequestBody String postData, 
+	public String msgEvent(HttpServletRequest request, @RequestBody String postData, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestParam(value = "nonce", required = false) String nonce, 
 			@RequestParam(value = "encrypt_type", required = false) String encryptType,
 			@RequestParam(value = "msg_signature", required = false) String msgSignature) {
 		
-		EventRequest eventRequest = new EventRequest(msgSignature, timeStamp, nonce, 
+		String requestUri = request.getRequestURI();
+		String appId = "";
+		try {
+			appId = requestUri.substring(requestUri.lastIndexOf("/"), requestUri.length());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		
+		EventRequest eventRequest = new EventRequest(appId, msgSignature, timeStamp, nonce, 
 				encryptType, msgSignature, postData);
 		logger.info("event msg : " + eventRequest);
 		String responeMsg = messageService.handleMsgEvent(eventRequest);

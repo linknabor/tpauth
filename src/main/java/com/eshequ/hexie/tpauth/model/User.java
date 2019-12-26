@@ -6,6 +6,11 @@ import org.springframework.data.annotation.Id;
 
 public class User extends BaseModel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4076218345468536036L;
+
 	@Id
     private Long id;
 

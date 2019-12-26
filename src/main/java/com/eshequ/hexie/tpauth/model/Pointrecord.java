@@ -4,6 +4,11 @@ import org.springframework.data.annotation.Id;
 
 public class Pointrecord extends BaseModel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7876865010805048437L;
+
 	@Id
     private Long id;
 
