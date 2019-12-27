@@ -9,5 +9,5 @@ public interface ScheduleService {
 	void handleAuthQueue();
 
 	void updateAuthorizerJsTicket();
-
+	
 }

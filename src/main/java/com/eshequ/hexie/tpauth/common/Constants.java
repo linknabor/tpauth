@@ -21,6 +21,10 @@ public class Constants {
 	
 	public static final String KEY_AUTH_QUEUE = "oaAuth_authorizationQueue";
 	
+	public static final String KEY_SUBSCRIBE_MSG_QUEUE = "queue_subscribeMsg";	//关注推客服消息的队列
+	
+	public static final String KEY_SUBSCRIBE_USER = "subscribe_usertime_";	//记录一段时间内关注的用户和关注时间，30分钟失效。排重用。
+	
 	public static List<String> mobileDevices;
 	
 	static {
