@@ -36,17 +36,33 @@ public class WechatMessageController {
 			@RequestParam(value = "msg_signature", required = false) String msgSignature) {
 		
 		String requestUri = request.getRequestURI();
-		String appId = "";
-		try {
-			appId = requestUri.substring(requestUri.lastIndexOf("/"), requestUri.length());
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
+		String appId = getAppIdByRequestUri(requestUri);
 		
 		EventRequest eventRequest = new EventRequest(appId, msgSignature, timeStamp, nonce, 
 				encryptType, msgSignature, postData);
 		logger.info("event msg : " + eventRequest);
 		String responeMsg = messageService.handleMsgEvent(eventRequest);
 		return responeMsg;
+	}
+	
+	/**
+	 * 从请求链接中截取appId
+	 * @param requestUri
+	 * @return
+	 */
+	private String getAppIdByRequestUri(String requestUri) {
+		String appId = "";
+		try {
+			int endIndex = requestUri.indexOf("?");
+			if (endIndex == -1) {
+				endIndex = requestUri.length();
+			}else {
+				endIndex = endIndex - 1;
+			}
+			appId = requestUri.substring(requestUri.lastIndexOf("/")+1, endIndex);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return appId;
 	}
 }
