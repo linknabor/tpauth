@@ -49,7 +49,7 @@ public class AuthController {
 			@RequestParam(value = "encrypt_type", required = false) String encryptType,
 			@RequestParam(value = "msg_signature", required = false) String msgSignature) throws AesException, IOException {
 		
-		EventRequest authRequest = new EventRequest(signature, timeStamp, nonce, encryptType, msgSignature, requestXml);
+		EventRequest authRequest = new EventRequest("", signature, timeStamp, nonce, encryptType, msgSignature, requestXml);
 		logger.info("auth event request is : " + authRequest);
 		authService.handleAuthEvent(authRequest);
 		return WechatConfig.SUCCESS;

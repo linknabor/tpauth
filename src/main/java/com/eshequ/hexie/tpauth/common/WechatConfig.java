@@ -6,6 +6,14 @@ public class WechatConfig {
 	
 	public final static String FAIL = "fail";
 	
+	//微信消息类型
+	public final static String MSG_TYPE_TEXT = "text";
+	public final static String MSG_TYPE_EVENT = "event";
+	public final static String EVENT_TYPE_SUBSCRIBE = "subscribe";
+	public final static String EVENT_TYPE_UNSUBSCRIBE = "unsubscribe";
+	public final static String EVENT_TYPE_USERGETCARD = "user_get_card";
+	
+	/* authorization start */
 	public final static String COMPONENT_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
 	
 	public final static String AUTHORIZER_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_authorizer_token?component_access_token=%s" ;
@@ -28,8 +36,6 @@ public class WechatConfig {
 	
 	public final static String AUTH_REDIRECT_URI = "https://test.e-shequ.com/official/authSuccess.html";
 	
-	public final static String MSG_TYPE_TEXT = "text";
-	
 	public final static String TEST_APP_ID = "wx570bc396a51b8ff8";
 	
 	public final static String TEST_USERNAME = "gh_3c884a361561";
@@ -43,4 +49,10 @@ public class WechatConfig {
 	public final static String UPDATE_MENU_URL = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=ACCESS_TOKEN";
 	
 	public final static String JS_TICKET_URL = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=ACCESS_TOKEN&type=jsapi";
+	/* authorization end */
+	
+	/* member card start */
+	public final static String MEMBER_CARD_CREATE_URL = "https://api.weixin.qq.com/card/create?access_token=ACCESS_TOKEN";	//会员卡创建
+	/* member card end */
+
 }

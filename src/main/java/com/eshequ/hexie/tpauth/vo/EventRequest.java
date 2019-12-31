@@ -15,8 +15,9 @@ public class EventRequest implements Serializable {
 	private String encrypt_type;
 	private String msg_signature;
 	private String postData;
+	private String appId;
 	
-	public EventRequest(String signature, String timestamp, String nonce, String encrypt_type, String msg_signature,
+	public EventRequest(String appId, String signature, String timestamp, String nonce, String encrypt_type, String msg_signature,
 			String postData) {
 		super();
 		this.signature = signature;
@@ -25,6 +26,7 @@ public class EventRequest implements Serializable {
 		this.encrypt_type = encrypt_type;
 		this.msg_signature = msg_signature;
 		this.postData = postData;
+		this.appId = appId;
 	}
 	
 	public String getSignature() {
@@ -63,15 +65,21 @@ public class EventRequest implements Serializable {
 	public void setPostData(String postData) {
 		this.postData = postData;
 	}
+	public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
 
 	@Override
 	public String toString() {
 		return "EventRequest [signature=" + signature + ", timestamp=" + timestamp + ", nonce=" + nonce
 				+ ", encrypt_type=" + encrypt_type + ", msg_signature=" + msg_signature + ", postData=" + postData
-				+ "]";
+				+ ", appId=" + appId + "]";
 	}
 
-	
 	
 	
 }
