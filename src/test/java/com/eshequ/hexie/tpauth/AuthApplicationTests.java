@@ -27,13 +27,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.eshequ.hexie.tpauth.config.AuthApplication;
-import com.eshequ.hexie.tpauth.config.TestSyn;
 import com.eshequ.hexie.tpauth.exception.AesException;
 import com.eshequ.hexie.tpauth.schedule.ScheduleService;
 import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.util.RestUtil;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
-import com.eshequ.hexie.tpauth.vo.TestEntity;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizationResp;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -227,26 +225,6 @@ public class AuthApplicationTests {
 		
 	}
 	
-	@Autowired
-	private TestSyn testSyn;
-	
-	
-	@Test
-	public void testAsync() {
-		
-		TestEntity testEntity = new TestEntity();
-		testEntity.setId(1l);
-		redisTemplate.opsForValue().set("myasync", testEntity);
-		
-		testEntity.setTel("18116419486");
-		
-		testEntity = testSyn.test(testEntity);
-		System.out.println("a:" + testEntity);
-		
-		testEntity = (TestEntity) redisTemplate.opsForValue().get("myasync");
-		System.out.println("b:" + testEntity);
-	}
-
 	@Autowired
 	private RestUtil restUtil;
 	
