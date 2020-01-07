@@ -25,6 +25,8 @@ public class Constants {
 	
 	public static final String KEY_EVENT_GETCARD_QUEUE = "queue_event_usergetcard";	//领卡事件消息队列
 	
+	public static final String KEY_EVENT_UPDATECARD_QUEUE = "queue_event_updatecard"; //更新卡事件队列
+	
 	public static List<String> mobileDevices;
 	
 	static {

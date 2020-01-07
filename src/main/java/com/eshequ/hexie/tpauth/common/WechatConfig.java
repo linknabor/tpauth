@@ -12,6 +12,8 @@ public class WechatConfig {
 	public final static String EVENT_TYPE_SUBSCRIBE = "subscribe";
 	public final static String EVENT_TYPE_UNSUBSCRIBE = "unsubscribe";
 	public final static String EVENT_TYPE_USERGETCARD = "user_get_card";
+	public final static String EVENT_TYPE_UPDATECARD = "update_member_card";	//会员卡内容更新事件,当用户的会员卡积分余额发生变动时，微信会推送事件告知开发者。
+	public final static String EVENT_TYPE_DELCARD = "user_del_card";	//删除卡事件
 	
 	/* authorization start */
 	public final static String COMPONENT_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
