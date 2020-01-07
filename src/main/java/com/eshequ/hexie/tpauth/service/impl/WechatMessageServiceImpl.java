@@ -273,6 +273,12 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		case WechatConfig.EVENT_TYPE_USERGETCARD:
 			eventGetCard(appId, decryptRoot);
 			break;
+		case WechatConfig.EVENT_TYPE_UPDATECARD:
+			eventUpdateCard(appId, decryptRoot);
+			break;
+		case WechatConfig.EVENT_TYPE_DELCARD:
+			//TODO
+			break;
 		default:
 			break;
 		}
@@ -362,6 +368,49 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		}else {
 			logger.warn("duplicated request, user :" + fromUserOpenId + ", createTime : " + createTime);
 		}
+	}
+	
+	/**
+	 * 更新卡事件
+	 * @param appId
+	 * @param decryptRoot
+	 * @throws JsonProcessingException 
+	 */
+	public void eventUpdateCard(String appId, JsonNode decryptRoot) throws JsonProcessingException {
+		
+		JsonNode fromUserNode = decryptRoot.path("FromUserName");
+		String fromUserOpenId = fromUserNode.asText();
+		JsonNode createTimeNode = decryptRoot.path("CreateTime");
+		String createTime = createTimeNode.asText();
+		JsonNode cardIdNode = decryptRoot.path("CardId");
+		String cardId = cardIdNode.asText();
+		JsonNode userCardCodeNode = decryptRoot.path("UserCardCode");
+		String userCardCode = userCardCodeNode.asText();
+		JsonNode modifyBonusNode = decryptRoot.path("ModifyBonus");
+		String modifyBonus = modifyBonusNode.asText();	//变动的积分值
+		JsonNode modifyBalanceNode = decryptRoot.path("ModifyBalance");
+		String modifyBalance = modifyBalanceNode.asText();	//变动的余额值
+		
+		String keyPrev = "event_updateCard_";
+		String userTimeKey = keyPrev + fromUserOpenId + "_" + createTime;
+		
+		Long times = redisTemplate.opsForValue().increment(userTimeKey, 1);	//直接往上加
+		if (times == 1) {
+			Map<String, String> map = new HashMap<>();
+			map.put("openid", fromUserOpenId);
+			map.put("appId", appId);
+			map.put("cardId", cardId);
+			map.put("cardCode", userCardCode);
+			map.put("modifyBonus", modifyBonus);
+			map.put("modifyBalance", modifyBalance);
+			String json = objectMapper.writeValueAsString(map);
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_UPDATECARD_QUEUE, json);
+			redisTemplate.expire(userTimeKey, 10, TimeUnit.MINUTES);	//10分钟过期。一般并发出现在服务器没有响应腾讯的情况下，腾讯会陆续发3次请求，间隔不会超过10分钟的。
+		}else {
+			logger.warn("duplicated request, user :" + fromUserOpenId + ", createTime : " + createTime);
+		}
+		
+		
 	}
 	
 

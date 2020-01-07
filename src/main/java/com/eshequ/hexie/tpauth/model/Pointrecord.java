@@ -1,7 +1,11 @@
 package com.eshequ.hexie.tpauth.model;
 
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
 import org.springframework.data.annotation.Id;
 
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames= {"keystr"})})
 public class Pointrecord extends BaseModel {
 	
 	/**
@@ -11,17 +15,11 @@ public class Pointrecord extends BaseModel {
 
 	@Id
     private Long id;
-
     private Long createdate;
-
     private String keystr;
-
     private String memo;
-
-    private Integer point;
-
+    private Integer point;	//本次添加的积分
     private Integer reason;
-
     private Integer type;
 
     private Long userid;
@@ -89,4 +87,6 @@ public class Pointrecord extends BaseModel {
     public void setUserid(Long userid) {
         this.userid = userid;
     }
+
+    
 }
