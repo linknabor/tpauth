@@ -21,11 +21,11 @@ public class Constants {
 	
 	public static final String KEY_AUTH_QUEUE = "oaAuth_authorizationQueue";
 	
-	public static final String KEY_EVENT_SUBSCRIBE_QUEUE = "queue_event_subscribe";	//关注事件消息队列
+	public static final String KEY_EVENT_SUBSCRIBE_QUEUE = "queueEventSubscribe";	//关注事件消息队列
 	
-	public static final String KEY_EVENT_GETCARD_QUEUE = "queue_event_usergetcard";	//领卡事件消息队列
+	public static final String KEY_EVENT_GETCARD_QUEUE = "queueEventUserGetCard";	//领卡事件消息队列
 	
-	public static final String KEY_EVENT_UPDATECARD_QUEUE = "queue_event_updatecard"; //更新卡事件队列
+	public static final String KEY_EVENT_UPDATECARD_QUEUE = "queueEventUpdateCard"; //更新卡事件队列
 	
 	public static List<String> mobileDevices;
 	

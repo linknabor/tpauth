@@ -397,6 +397,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		Long times = redisTemplate.opsForValue().increment(userTimeKey, 1);	//直接往上加
 		if (times == 1) {
 			Map<String, String> map = new HashMap<>();
+			map.put("createTime", createTime);
 			map.put("openid", fromUserOpenId);
 			map.put("appId", appId);
 			map.put("cardId", cardId);
