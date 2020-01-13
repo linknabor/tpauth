@@ -1,13 +1,10 @@
 package com.eshequ.hexie.tpauth.schedule.impl;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -42,10 +39,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 	@Autowired
 	private RestUtil restUtil;
 	
-	@PostConstruct
-	public void init() {
-		handleAuthQueue();
-	}
 	
 	/**
 	 * 获取componentAccessToken(平台token)，每隔5分钟一次，如果token未超时，则不更新。
@@ -194,6 +187,21 @@ public class ScheduleServiceImpl implements ScheduleService {
 		
 	}
 	
+	
+	
+	@Scheduled(cron = "0 0/1 * * * ?")
+	@Override
+	public void handleAuthQueue() {
+		
+		AuthEvent authEvent = (AuthEvent) redisTemplate.opsForList().leftPop(Constants.KEY_AUTH_QUEUE);
+		if (authEvent == null || StringUtils.isEmpty(authEvent.getAuthorizationCode())) {
+			return;
+		}
+		logger.info("start to get authorization info ... ");
+		authService.authorizationInfo(authEvent.getAuthorizationCode(), authEvent.getAuthorizerAppid());
+		logger.info("end getting authorization info ... ");
+	}
+	
 	/**
 	 * 从微信获取js ticket
 	 * @param authorizerAccessToken
@@ -206,23 +214,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 		jsTicket.setCreateTime(System.currentTimeMillis());
 		return jsTicket;
 		
-	}
-	
-	/**
-	 * 处理授权队列。有公众号授权的时候才会用上。
-	 */
-	@Async
-	public void handleAuthQueue() {
-		
-		while(true) {
-			AuthEvent authEvent = (AuthEvent) redisTemplate.opsForList().leftPop(Constants.KEY_AUTH_QUEUE);
-			if (authEvent == null || StringUtils.isEmpty(authEvent.getAuthorizationCode())) {
-				return;
-			}
-			logger.info("start to get authorization info ... ");
-			authService.authorizationInfo(authEvent.getAuthorizationCode(), authEvent.getAuthorizerAppid());
-			logger.info("end getting authorization info ... ");
-		}
 	}
 
 
