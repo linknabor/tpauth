@@ -217,8 +217,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 		while(true) {
 			
 			try {
-				logger.info("for test log start !!!!!!");
-				logger.info("for test log end !!!!!!");
 				AuthEvent authEvent = (AuthEvent) redisTemplate.opsForList().leftPop(Constants.KEY_AUTH_QUEUE);
 				if (authEvent == null || StringUtils.isEmpty(authEvent.getAuthorizationCode())) {
 					continue;
