@@ -42,12 +42,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 	@Autowired
 	private RestUtil restUtil;
 	
-	@PostConstruct
-	public void init() {
-		handleAuthQueue();
-	}
-	
-	
 	/**
 	 * 获取componentAccessToken(平台token)，每隔5分钟一次，如果token未超时，则不更新。
 	 * token每2小时超时，大于1小时50分的时候更新
@@ -196,6 +190,22 @@ public class ScheduleServiceImpl implements ScheduleService {
 	}
 	
 	/**
+	 * 处理授权的事件队列
+	 */
+	@Scheduled(cron = "0 0/1 * * * ?")
+	@Override
+	public void handleAuthQueue() {
+		
+		AuthEvent authEvent = (AuthEvent) redisTemplate.opsForList().leftPop(Constants.KEY_AUTH_QUEUE);
+		if (authEvent == null || StringUtils.isEmpty(authEvent.getAuthorizationCode())) {
+			return;
+		}
+		logger.info("start to get authorization info ... ");
+		authService.authorizationInfo(authEvent.getAuthorizationCode(), authEvent.getAuthorizerAppid());
+		logger.info("end getting authorization info ... ");
+	}
+	
+	/**
 	 * 从微信获取js ticket
 	 * @param authorizerAccessToken
 	 */
@@ -210,21 +220,4 @@ public class ScheduleServiceImpl implements ScheduleService {
 	}
 	
 	
-	/**
-	 * 处理授权队列。有公众号授权的时候才会用上。
-	 */
-	@Async
-	public void handleAuthQueue() {
-		
-		while(true) {
-			AuthEvent authEvent = (AuthEvent) redisTemplate.opsForList().leftPop(Constants.KEY_AUTH_QUEUE);
-			if (authEvent == null || StringUtils.isEmpty(authEvent.getAuthorizationCode())) {
-				return;
-			}
-			logger.info("start to get authorization info ... ");
-			authService.authorizationInfo(authEvent.getAuthorizationCode(), authEvent.getAuthorizerAppid());
-			logger.info("end getting authorization info ... ");
-		}
-	}
-
 }
