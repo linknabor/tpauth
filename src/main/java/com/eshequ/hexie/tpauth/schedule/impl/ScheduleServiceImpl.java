@@ -215,13 +215,20 @@ public class ScheduleServiceImpl implements ScheduleService {
 	public void handleAuthQueue() {
 		
 		while(true) {
-			AuthEvent authEvent = (AuthEvent) redisTemplate.opsForList().leftPop(Constants.KEY_AUTH_QUEUE);
-			if (authEvent == null || StringUtils.isEmpty(authEvent.getAuthorizationCode())) {
-				return;
+			
+			try {
+				logger.info("for test log start !!!!!!");
+				logger.info("for test log end !!!!!!");
+				AuthEvent authEvent = (AuthEvent) redisTemplate.opsForList().leftPop(Constants.KEY_AUTH_QUEUE);
+				if (authEvent == null || StringUtils.isEmpty(authEvent.getAuthorizationCode())) {
+					continue;
+				}
+				logger.info("start to get authorization info ... ");
+				authService.authorizationInfo(authEvent.getAuthorizationCode(), authEvent.getAuthorizerAppid());
+				logger.info("end getting authorization info ... ");
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
 			}
-			logger.info("start to get authorization info ... ");
-			authService.authorizationInfo(authEvent.getAuthorizationCode(), authEvent.getAuthorizerAppid());
-			logger.info("end getting authorization info ... ");
 		}
 	}
 
