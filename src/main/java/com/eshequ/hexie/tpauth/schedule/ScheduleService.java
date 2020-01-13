@@ -6,6 +6,8 @@ public interface ScheduleService {
 
 	void updateAuthorizerAccessToken();
 
+	void handleAuthQueue();
+
 	void updateAuthorizerJsTicket();
 
 }
