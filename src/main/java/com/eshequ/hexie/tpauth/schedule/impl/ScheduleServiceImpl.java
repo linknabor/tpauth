@@ -187,8 +187,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 		
 	}
 	
-	
-	
+	/**
+	 * 处理授权的事件队列
+	 */
 	@Scheduled(cron = "0 0/1 * * * ?")
 	@Override
 	public void handleAuthQueue() {
