@@ -301,6 +301,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		if (wechatCardEnabledApps.indexOf(appId)==-1) {
 			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+			return;
 		}
 		
 		//异步推送模板消息：推送到队列，队列慢慢处理，这样每个线程可以省下时间，应对并发。
@@ -337,6 +338,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		if (wechatCardEnabledApps.indexOf(appId)==-1) {
 			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+			return;
 		}
 		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
@@ -391,6 +393,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		if (wechatCardEnabledApps.indexOf(appId)==-1) {
 			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+			return;
 		}
 		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
