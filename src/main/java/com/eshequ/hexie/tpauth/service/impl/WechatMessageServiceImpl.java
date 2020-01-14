@@ -54,6 +54,9 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	@Value("${component.aeskey}")
 	private String aeskey;
 	
+	@Value("${wechatCardEnabledApps}")
+	private String wechatCardEnabledApps;
+	
 	@Autowired
 	private RestUtil restutil;
 	
@@ -296,6 +299,10 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	private void eventSubscribe(String appId, JsonNode decryptRoot) throws JsonProcessingException {
 		
+		if (wechatCardEnabledApps.indexOf(appId)==-1) {
+			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+		}
+		
 		//异步推送模板消息：推送到队列，队列慢慢处理，这样每个线程可以省下时间，应对并发。
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
@@ -327,6 +334,10 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 * @throws JsonProcessingException 
 	 */
 	private void eventGetCard(String appId, JsonNode decryptRoot) throws JsonProcessingException {
+		
+		if (wechatCardEnabledApps.indexOf(appId)==-1) {
+			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+		}
 		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
@@ -378,6 +389,10 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	public void eventUpdateCard(String appId, JsonNode decryptRoot) throws JsonProcessingException {
 		
+		if (wechatCardEnabledApps.indexOf(appId)==-1) {
+			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+		}
+		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
 		JsonNode createTimeNode = decryptRoot.path("CreateTime");
@@ -414,5 +429,5 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 	}
 	
-
+	
 }
