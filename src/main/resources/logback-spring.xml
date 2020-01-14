@@ -14,9 +14,8 @@
     </appender>   
     <!-- 按照每天生成日志文件 -->   
     <appender name="FILE"  class="ch.qos.logback.core.rolling.RollingFileAppender">   
-        <rollingPolicy
-			class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>${LOG_HOME}/tpauth.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_HOME}/tpauth.log.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 			<maxFileSize>100MB</maxFileSize>
 		</rollingPolicy>
 
@@ -27,13 +26,7 @@
 		</layout>
     </appender>
     
-    <!-- 日志输出级别 -->
-    <root level="INFO">   
-        <appender-ref ref="STDOUT" />   
-        <appender-ref ref="FILE" />
-    </root>
-
-	<!-- 日志输出级别 -->
+   <!-- 日志输出级别 -->
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
