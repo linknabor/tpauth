@@ -262,7 +262,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
-
 		JsonNode eventNode = decryptRoot.path("Event");
 		String event = eventNode.asText();
 		switch (event) {
