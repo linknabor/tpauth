@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,7 +30,7 @@ import com.eshequ.hexie.tpauth.config.AuthApplication;
 import com.eshequ.hexie.tpauth.exception.AesException;
 import com.eshequ.hexie.tpauth.schedule.ScheduleService;
 import com.eshequ.hexie.tpauth.service.AuthService;
-import com.eshequ.hexie.tpauth.util.RandomUtil;
+import com.eshequ.hexie.tpauth.util.RestUtil;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizationResp;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -198,6 +201,71 @@ public class AuthApplicationTests {
 		String afterDecrpt = pc.decryptMsg(msgSignature, timestamp, nonce, encryptStr);
 		System.out.println(afterDecrpt);
 		
+	}
+	
+	@Autowired
+	private RedisTemplate<String, Object> redisTemplate;
+	
+	@Test
+	public void testRedisTemplate() {
+		
+//		Long ret = redisTemplate.opsForValue().increment("vericodeIpFrequency_127.0.0.1");
+//		System.out.println(ret);
+		
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("abc", "12");
+		
+		redisTemplate.opsForHash().putAll("testHash", map);
+		
+		map = new HashMap<String, String>();
+		map.put("dfg", "244");
+		redisTemplate.opsForHash().putAll("testHash", map);
+		
+		redisTemplate.opsForHash().put("testHash", "xyz", "666");
+		
+	}
+	
+	@Autowired
+	private RestUtil restUtil;
+	
+	@Test
+	public void testCard() {
+		
+		String reqUrl = "https://api.weixin.qq.com/card/get?access_token=TOKEN";
+		String token = "28_LnBa3HAejtg7ko1Aznw-LIB92iM2DcGd9TSdL_hWJDw7EbMLhM3IlnF5Y4O6CZAaUzvfBsPmp1HrOFDBg0ydPi4DMBf_md9EKZM0FLBEBTJ_fDnIl0sRSZ-Z_m1aewT03mm9Xr0SkfUDBqYaJSWiAIACLP";
+		reqUrl = reqUrl.replaceAll("TOKEN", token);
+		Map<String, String> map =  new HashMap<>();
+		map.put("card_id", "p_3DlwYakaIwGuYk4CfIG5w6gz3I");
+		String response = restUtil.postByJson(reqUrl, map, String.class);
+		System.out.println(response);
+//		o_3Dlwb5LserLCnzuQwDNUMYoypM
+	}
+	
+	@Test
+	public void testCardList() {
+		
+		String reqUrl = "https://api.weixin.qq.com/card/user/getcardlist?access_token=TOKEN";
+		String token = "28_Zh5Z_SAAZaZ1623Gkl0ZPvtrcz7kdlgHJKuXDVJugcKUOCx860a30h2Sg5m6x3bn2z2tf1wQux08EU3Fv-1OkbS3ktMHFyN-7EgmTqk6-hm3rzEED-SG22WS0oU8ihlIkwaZFh7wXPasonTVPKAdACAFAQ";
+		reqUrl = reqUrl.replaceAll("TOKEN", token);
+		Map<String, String> map =  new HashMap<>();
+		map.put("card_id", "p_3DlwYakaIwGuYk4CfIG5w6gz3I");
+		map.put("openid", "o_3Dlwb5LserLCnzuQwDNUMYoypM");
+		String response = restUtil.postByJson(reqUrl, map, String.class);
+		System.out.println(response);
+//		o_3Dlwb5LserLCnzuQwDNUMYoypM
+	}
+	
+	@Test
+	public void testUserCardInfo() {
+		
+		String reqUrl = "https://api.weixin.qq.com/card/membercard/userinfo/get?access_token=TOKEN";
+		String token = "28_Zh5Z_SAAZaZ1623Gkl0ZPvtrcz7kdlgHJKuXDVJugcKUOCx860a30h2Sg5m6x3bn2z2tf1wQux08EU3Fv-1OkbS3ktMHFyN-7EgmTqk6-hm3rzEED-SG22WS0oU8ihlIkwaZFh7wXPasonTVPKAdACAFAQ";
+		reqUrl = reqUrl.replaceAll("TOKEN", token);
+		Map<String, String> map =  new HashMap<>();
+		map.put("card_id", "p_3DlwYakaIwGuYk4CfIG5w6gz3I");
+		map.put("code", "815208363832");
+		String response = restUtil.postByJson(reqUrl, map, String.class);
+		System.out.println(response);
 	}
 	
 	

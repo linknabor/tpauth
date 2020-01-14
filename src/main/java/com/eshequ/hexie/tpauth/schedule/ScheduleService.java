@@ -4,7 +4,7 @@ public interface ScheduleService {
 
 	void updateComponentAccessToken();
 	void updateAuthorizerAccessToken();
-	void handleAuthQueue();
 	void updateAuthorizerJsTicket();
-
+	void handleAuthQueue();
+	
 }
