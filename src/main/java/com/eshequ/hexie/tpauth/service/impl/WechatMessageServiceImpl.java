@@ -244,9 +244,8 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
 		responseMessage.setContent(respContent);
 		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
-		
-//		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
-		
+		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
+
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
 		logger.info("replyTextMsg, request conent :" + content + ", response content :" + replyMsg);
@@ -458,12 +457,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		JsonNode toUserNode = decryptRoot.path("ToUserName");
 		String fromUserName = fromUserNode.asText();
 		String toUserName = toUserNode.asText();
-		
-		if (wechatCardEnabledApps.indexOf(toUserName)==-1) {
+		if (customServiceEnabledApps.indexOf(toUserName)==-1) {
 			logger.info("当前公众号["+toUserName+"]，未开通图片客服消息。");
 			return "";
 		}
-		
+
 		ResponseImageMessage responseMessage = new ResponseImageMessage();
 		responseMessage.setFromUserName(toUserName);
 		responseMessage.setToUserName(fromUserName);
@@ -475,7 +473,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
 		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
-		
+
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
 		logger.info("replyTextMsgByImage, request conent :" + content + ", response content :" + replyMsg);
