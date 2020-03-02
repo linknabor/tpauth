@@ -30,6 +30,8 @@ import com.eshequ.hexie.tpauth.vo.EventRequest;
 import com.eshequ.hexie.tpauth.vo.WechatResponse;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage;
+import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage;
+import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage.Image;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,6 +55,12 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	
 	@Value("${component.aeskey}")
 	private String aeskey;
+	
+	@Value("${wechatCardEnabledApps}")
+	private String wechatCardEnabledApps;
+	
+	@Value("${customservice.image.mediaid}")
+	private String mediaId;
 	
 	@Autowired
 	private RestUtil restutil;
@@ -123,7 +131,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 				
 				switch (msgType) {
 				case WechatConfig.MSG_TYPE_TEXT:
-					response = replyTextMsg(decryptedContent);
+					response = replyTextMsgByImg(decryptedContent);
 					break;
 				case WechatConfig.MSG_TYPE_EVENT:
 					response = replyEventMsg(eventRequest.getAppId(), decryptedContent);
@@ -207,13 +215,13 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	
 	/**
 	 * 普通文本消息回复
-	 * 测试用
+	 * 微信发布测试用，勿删！！！
 	 * @param decryptedContent
 	 * @return
 	 * @throws IOException
 	 * @throws AesException
 	 */
-	private String replyTextMsg(String decryptedContent) throws IOException, AesException {
+	public String replyTextMsg(String decryptedContent) throws IOException, AesException {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
@@ -259,7 +267,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
-
 		JsonNode eventNode = decryptRoot.path("Event");
 		String event = eventNode.asText();
 		switch (event) {
@@ -296,6 +303,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	private void eventSubscribe(String appId, JsonNode decryptRoot) throws JsonProcessingException {
 		
+		if (wechatCardEnabledApps.indexOf(appId)==-1) {
+			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+			return;
+		}
+		
 		//异步推送模板消息：推送到队列，队列慢慢处理，这样每个线程可以省下时间，应对并发。
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
@@ -327,6 +339,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 * @throws JsonProcessingException 
 	 */
 	private void eventGetCard(String appId, JsonNode decryptRoot) throws JsonProcessingException {
+		
+		if (wechatCardEnabledApps.indexOf(appId)==-1) {
+			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+			return;
+		}
 		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
@@ -378,6 +395,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	public void eventUpdateCard(String appId, JsonNode decryptRoot) throws JsonProcessingException {
 		
+		if (wechatCardEnabledApps.indexOf(appId)==-1) {
+			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
+			return;
+		}
+		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
 		JsonNode createTimeNode = decryptRoot.path("CreateTime");
@@ -414,5 +436,42 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 	}
 	
+	/**
+	 * 对于普通文本消息，回复客服消息，并发送客服的企业微信二维码
+	 * 微信发布测试用，勿删！！！
+	 * @param decryptedContent
+	 * @return
+	 * @throws IOException
+	 * @throws AesException
+	 */
+	private String replyTextMsgByImg(String decryptedContent) throws IOException, AesException {
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
 
+		JsonNode contentNode = decryptRoot.path("Content");
+		String content = contentNode.asText();
+		JsonNode fromUserNode = decryptRoot.path("FromUserName");
+		JsonNode toUserNode = decryptRoot.path("ToUserName");
+		String fromUserName = fromUserNode.asText();
+		String toUserName = toUserNode.asText();
+		
+		ResponseImageMessage responseMessage = new ResponseImageMessage();
+		responseMessage.setFromUserName(toUserName);
+		responseMessage.setToUserName(fromUserName);
+		responseMessage.setMsgType(WechatConfig.MSG_TYPE_IMAGE);
+		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
+		Image image = new Image();
+		image.setMediaId(mediaId);
+		responseMessage.setImage(image);
+		
+		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
+		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
+		
+		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
+		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
+		logger.info("replyTextMsgByImage, request conent :" + content + ", response content :" + replyMsg);
+		return reply;
+	}
+	
 }
