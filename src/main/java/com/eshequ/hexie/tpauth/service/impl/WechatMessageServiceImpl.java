@@ -481,5 +481,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		logger.info("replyTextMsgByImage, request conent :" + content + ", response content :" + replyMsg);
 		return reply;
 	}
+
 	
 }
