@@ -30,6 +30,8 @@ import com.eshequ.hexie.tpauth.vo.EventRequest;
 import com.eshequ.hexie.tpauth.vo.WechatResponse;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage;
+import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage;
+import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage.Image;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -56,6 +58,12 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	
 	@Value("${wechatCardEnabledApps}")
 	private String wechatCardEnabledApps;
+	
+	@Value("${customservice.image.mediaid}")
+	private String mediaId;
+	
+	@Value("customServiceEnabledApps")
+	private String customServiceEnabledApps;
 	
 	@Autowired
 	private RestUtil restutil;
@@ -210,13 +218,13 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	
 	/**
 	 * 普通文本消息回复
-	 * 测试用
+	 * 微信发布测试用，勿删！！！
 	 * @param decryptedContent
 	 * @return
 	 * @throws IOException
 	 * @throws AesException
 	 */
-	private String replyTextMsg(String decryptedContent) throws IOException, AesException {
+	public String replyTextMsg(String decryptedContent) throws IOException, AesException {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
@@ -237,7 +245,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		responseMessage.setContent(respContent);
 		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
 		
-		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
+//		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
 		
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
@@ -431,5 +439,48 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 	}
 	
+	/**
+	 * 对于普通文本消息，回复客服消息，并发送客服的企业微信二维码
+	 * 微信发布测试用，勿删！！！
+	 * @param decryptedContent
+	 * @return
+	 * @throws IOException
+	 * @throws AesException
+	 */
+	private String replyTextMsgByImg(String decryptedContent) throws IOException, AesException {
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
+
+		JsonNode contentNode = decryptRoot.path("Content");
+		String content = contentNode.asText();
+		JsonNode fromUserNode = decryptRoot.path("FromUserName");
+		JsonNode toUserNode = decryptRoot.path("ToUserName");
+		String fromUserName = fromUserNode.asText();
+		String toUserName = toUserNode.asText();
+		
+		if (wechatCardEnabledApps.indexOf(toUserName)==-1) {
+			logger.info("当前公众号["+toUserName+"]，未开通图片客服消息。");
+			return "";
+		}
+		
+		ResponseImageMessage responseMessage = new ResponseImageMessage();
+		responseMessage.setFromUserName(toUserName);
+		responseMessage.setToUserName(fromUserName);
+		responseMessage.setMsgType(WechatConfig.MSG_TYPE_IMAGE);
+		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
+		Image image = new Image();
+		image.setMediaId(mediaId);
+		responseMessage.setImage(image);
+		
+		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
+		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
+		
+		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
+		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
+		logger.info("replyTextMsgByImage, request conent :" + content + ", response content :" + replyMsg);
+		return reply;
+	}
+
 	
 }

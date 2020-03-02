@@ -8,6 +8,7 @@ public class WechatConfig {
 	
 	//微信消息类型
 	public final static String MSG_TYPE_TEXT = "text";
+	public final static String MSG_TYPE_IMAGE = "image";
 	public final static String MSG_TYPE_EVENT = "event";
 	public final static String EVENT_TYPE_SUBSCRIBE = "subscribe";
 	public final static String EVENT_TYPE_UNSUBSCRIBE = "unsubscribe";
