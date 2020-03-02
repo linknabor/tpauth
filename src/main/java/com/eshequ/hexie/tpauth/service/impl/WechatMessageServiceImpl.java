@@ -62,6 +62,9 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	@Value("${customservice.image.mediaid}")
 	private String mediaId;
 	
+	@Value("customServiceEnabledApps")
+	private String customServiceEnabledApps;
+	
 	@Autowired
 	private RestUtil restutil;
 	
@@ -131,7 +134,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 				
 				switch (msgType) {
 				case WechatConfig.MSG_TYPE_TEXT:
-					response = replyTextMsgByImg(decryptedContent);
+					response = replyTextMsg(decryptedContent);
 					break;
 				case WechatConfig.MSG_TYPE_EVENT:
 					response = replyEventMsg(eventRequest.getAppId(), decryptedContent);
@@ -242,7 +245,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		responseMessage.setContent(respContent);
 		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
 		
-		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
+//		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
 		
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
@@ -455,6 +458,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		JsonNode toUserNode = decryptRoot.path("ToUserName");
 		String fromUserName = fromUserNode.asText();
 		String toUserName = toUserNode.asText();
+		
+		if (wechatCardEnabledApps.indexOf(toUserName)==-1) {
+			logger.info("当前公众号["+toUserName+"]，未开通图片客服消息。");
+			return "";
+		}
 		
 		ResponseImageMessage responseMessage = new ResponseImageMessage();
 		responseMessage.setFromUserName(toUserName);

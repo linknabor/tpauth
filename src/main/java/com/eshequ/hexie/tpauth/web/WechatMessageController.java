@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,7 +28,7 @@ public class WechatMessageController {
 	 * @param requestXml
 	 * @return
 	 */
-	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {"application/xml; charset=UTF-8"})
+	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {MediaType.TEXT_HTML_VALUE})
 	public String msgEvent(HttpServletRequest request, @RequestBody String postData, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
