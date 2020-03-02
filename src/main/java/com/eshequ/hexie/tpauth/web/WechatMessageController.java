@@ -34,6 +34,7 @@ public class WechatMessageController {
 	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {MediaType.APPLICATION_XML_VALUE})
 	public void msgEvent(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody String postData, 
+
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestParam(value = "nonce", required = false) String nonce, 
