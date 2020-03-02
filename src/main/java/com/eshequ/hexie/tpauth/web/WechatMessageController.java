@@ -1,6 +1,9 @@
 package com.eshequ.hexie.tpauth.web;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +31,9 @@ public class WechatMessageController {
 	 * @param requestXml
 	 * @return
 	 */
-	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {MediaType.TEXT_HTML_VALUE})
-	public String msgEvent(HttpServletRequest request, @RequestBody String postData, 
+	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {MediaType.APPLICATION_XML_VALUE})
+	public void msgEvent(HttpServletRequest request, HttpServletResponse response,
+			@RequestBody String postData, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestParam(value = "nonce", required = false) String nonce, 
@@ -43,7 +47,11 @@ public class WechatMessageController {
 				encryptType, msgSignature, postData);
 		logger.info("event msg : " + eventRequest);
 		String responeMsg = messageService.handleMsgEvent(eventRequest);
-		return responeMsg;
+		try {
+			response.getWriter().print(responeMsg);
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 	
 	/**
