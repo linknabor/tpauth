@@ -114,6 +114,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 						continue;
 					}
 					aat = authService.getAuthorizerAccessToken(authAppid, aat.getAuthorizerRefreshToken());
+					if (aat == null || StringUtils.isEmpty(aat.getAuthorizerRefreshToken())) {
+						logger.warn("response result has no refresh token, will not update !");
+						continue;
+					}
 					aat.setCreateTime(System.currentTimeMillis());
 					redisTemplate.opsForValue().set(authTokenKey, aat);
 					try {
