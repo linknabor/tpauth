@@ -342,11 +342,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	private void eventGetCard(String appId, JsonNode decryptRoot) throws JsonProcessingException {
 		
-		if (wechatCardEnabledApps.indexOf(appId)==-1) {
-			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
-			return;
-		}
-		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
 		JsonNode createTimeNode = decryptRoot.path("CreateTime");
