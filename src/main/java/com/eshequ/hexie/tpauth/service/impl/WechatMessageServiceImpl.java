@@ -1,6 +1,7 @@
 package com.eshequ.hexie.tpauth.service.impl;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,9 +31,11 @@ import com.eshequ.hexie.tpauth.vo.EventRequest;
 import com.eshequ.hexie.tpauth.vo.WechatResponse;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage;
+import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage.Image;
-import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
+import com.eshequ.hexie.tpauth.vo.subscribemsg.EventChange;
+import com.eshequ.hexie.tpauth.vo.subscribemsg.EventPopup;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -237,31 +240,44 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		String toUserName = toUserNode.asText();
 		
 		String respContent = content + "_callback";
-		ResponseMessage responseMessage = new ResponseMessage();
-		responseMessage.setFromUserName(toUserName);
-		responseMessage.setToUserName(fromUserName);
-		responseMessage.setMsgType(WechatConfig.MSG_TYPE_TEXT);
-		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
-		responseMessage.setContent(respContent);
-		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
-		
+//		ResponseMessage responseMessage = new ResponseMessage();
+//		responseMessage.setFromUserName(toUserName);
+//		responseMessage.setToUserName(fromUserName);
+//		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
+//		responseMessage.setMsgType(WechatConfig.MSG_TYPE_TEXT);
+//		responseMessage.setContent(respContent);
+//		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
 //		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
 		
+		String replyMsg = generateXml(fromUserName, toUserName, String.valueOf(System.currentTimeMillis()), WechatConfig.MSG_TYPE_TEXT, respContent);
+		//replyMsg = replyMsg.replaceAll(" ", "").replaceAll("\n", "");	//去换行
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
 		logger.info("replyTextMsg, request conent :" + content + ", response content :" + replyMsg);
 		return reply;
 	}
 	
+	private String generateXml(String toUserName, String fromUserName, String createTime, String msgType, String content) {
+
+		String format = "<xml>\n" + "<ToUserName><![CDATA[%1$s]]></ToUserName>\n"
+				+ "<FromUserName><![CDATA[%2$s]]></FromUserName>\n"
+				+ "<CreateTime>%3$s</CreateTime>\n" 
+				+ "<MsgType><![CDATA[%4$s]]></MsgType>\n" 
+				+ "<Content><![CDATA[%5$s]]></Content>\n" 
+				+ "</xml>";
+		return String.format(format, toUserName, fromUserName, createTime, msgType, content);
+
+	}
+	
+	
 	/**
 	 * 事件消息回复
-	 * 测试用
+	 * @param appId
 	 * @param decryptedContent
 	 * @return
-	 * @throws IOException
-	 * @throws AesException
+	 * @throws Exception
 	 */
-	private String replyEventMsg(String appId, String decryptedContent) throws IOException, AesException {
+	private String replyEventMsg(String appId, String decryptedContent) throws Exception {
 		
 		if (StringUtils.isEmpty(appId)) {
 			logger.warn("appId is empty, will skip ! decryptRoot : " + decryptedContent);
@@ -288,6 +304,12 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			break;
 		case WechatConfig.EVENT_TYPE_DELCARD:
 			//TODO
+			break;
+		case WechatConfig.EVENT_TYPE_SUBSCRIBE_MSG_POPUP:
+			eventSubscribeMsgPopup(appId, decryptedContent);
+			break;
+		case WechatConfig.EVENT_TYPE_SUBSCRIBE_MSG_CHANGE:
+			eventSubscribeMsgChange(appId, decryptedContent);
 			break;
 		default:
 			break;
@@ -342,11 +364,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 * @throws JsonProcessingException 
 	 */
 	private void eventGetCard(String appId, JsonNode decryptRoot) throws JsonProcessingException {
-		
-		if (wechatCardEnabledApps.indexOf(appId)==-1) {
-			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
-			return;
-		}
 		
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
@@ -447,7 +464,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 * @throws IOException
 	 * @throws AesException
 	 */
-	private String replyTextMsgByImg(String decryptedContent) throws IOException, AesException {
+	protected String replyTextMsgByImg(String decryptedContent) throws IOException, AesException {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
@@ -462,7 +479,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			logger.info("当前公众号["+toUserName+"]，未开通图片客服消息。");
 			return "";
 		}
-		
 		ResponseImageMessage responseMessage = new ResponseImageMessage();
 		responseMessage.setFromUserName(toUserName);
 		responseMessage.setToUserName(fromUserName);
@@ -474,11 +490,54 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
 		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
-		
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
 		logger.info("replyTextMsgByImage, request conent :" + content + ", response content :" + replyMsg);
 		return reply;
+	}
+	
+	/**
+	 * 用户在图文等场景内订阅通知的操作
+	 * @param appId
+	 * @param decryptRoot
+	 * @throws Exception 
+	 */
+	public void eventSubscribeMsgPopup(String appId, String decryptedContent) throws Exception {
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		EventPopup eventPopup = xmlMapper.readValue(decryptedContent, EventPopup.class);
+		
+		String keyPrev = "event_subscribeMsgPopup_";
+		String userTimeKey = keyPrev + eventPopup.getFromUserName() + "_" + eventPopup.getCreateTime();
+		
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
+			String json = objectMapper.writeValueAsString(eventPopup);
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_MSG_SUBSCRIBE_POPUP_QUEUE, json);
+}
+		
+	}
+	
+	/**
+	 * 用户在服务通知管理页面做通知管理时的操作
+	 * @param appId
+	 * @param decryptRoot
+	 * @throws Exception 
+	 */
+	public void eventSubscribeMsgChange(String appId, String decryptedContent) throws Exception {
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		EventChange eventChange = xmlMapper.readValue(decryptedContent, EventChange.class);
+		
+		String keyPrev = "event_subscribeMsgChange_";
+		String userTimeKey = keyPrev + eventChange.getFromUserName() + "_" + eventChange.getCreateTime();
+		
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
+			String json = objectMapper.writeValueAsString(eventChange);
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_MSG_SUBSCRIBE_CHANGE_QUEUE, json);
+		}
+		
 	}
 	
 }
