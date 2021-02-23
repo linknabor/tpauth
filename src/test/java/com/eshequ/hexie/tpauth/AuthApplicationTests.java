@@ -5,6 +5,7 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -33,10 +34,13 @@ import com.eshequ.hexie.tpauth.service.AuthService;
 import com.eshequ.hexie.tpauth.util.RestUtil;
 import com.eshequ.hexie.tpauth.util.wechat.WXBizMsgCrypt;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizationResp;
+import com.eshequ.hexie.tpauth.vo.subscribemsg.EventPopup;
 import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 @RunWith(SpringRunner.class)
@@ -268,5 +272,38 @@ public class AuthApplicationTests {
 		System.out.println(response);
 	}
 	
+	@Test
+	public void testEventMsgSubscribePopup() throws IOException {
+		
+		String xml = "<xml><ToUserName><![CDATA[gh_123456789abc]]></ToUserName>"
+	    +"<FromUserName><![CDATA[otFpruAK8D-E6EfStSYonYSBZ8_4]]></FromUserName>"
+	    +"<CreateTime>1610969440</CreateTime>"
+	    +"<MsgType><![CDATA[event]]></MsgType>"
+	    +"<Event><![CDATA[subscribe_msg_popup_event]]></Event>"
+	    +"<SubscribeMsgPopupEvent>"
+	        +"<List>"
+	            +"<TemplateId><![CDATA[VRR0UEO9VJOLs0MHlU0OilqX6MVFDwH3_3gz3Oc0NIc]]></TemplateId>"
+	            +"<SubscribeStatusString><![CDATA[accept]]></SubscribeStatusString>"
+	            +"<PopupScene>2</PopupScene>"
+	        +"</List>"
+	        +"<List>"
+	            +"<TemplateId><![CDATA[9nLIlbOQZC5Y89AZteFEux3WCXRRRG5Wfzkpssu4bLI]]></TemplateId>"
+	            +"<SubscribeStatusString><![CDATA[reject]]></SubscribeStatusString>"
+	            +"<PopupScene>2</PopupScene>"
+	        +"</List>"
+	    +"</SubscribeMsgPopupEvent>"
+	    +"</xml>";
+		
+//		<xml><ToUserName><![CDATA[gh_bac848e71b54]]></ToUserName><FromUserName><![CDATA[o_3Dlwc5fzAfEWhjAXpBbR6BDi0g]]>
+//		</FromUserName><CreateTime>1613989348</CreateTime><MsgType><![CDATA[event]]></MsgType>
+//		<Event><![CDATA[subscribe_msg_change_event]]></Event>
+//		<SubscribeMsgChangeEvent><List><TemplateId><![CDATA[nFQNN0gCejjQBGG8ZyB5uF5zcG8Bu7wd2_QPrAY0FA4]]></TemplateId><SubscribeStatusString>
+//		<![CDATA[reject]]></SubscribeStatusString></List></SubscribeMsgChangeEvent></xml>
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		EventPopup ep = xmlMapper.readValue(xml, EventPopup.class);
+		System.out.println(ep);
+		
+	}
 	
 }
