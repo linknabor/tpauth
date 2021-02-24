@@ -506,14 +506,14 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		EventPopup eventPopup = xmlMapper.readValue(decryptedContent, EventPopup.class);
-		
+		eventPopup.setAppId(appId);
 		String keyPrev = "event_subscribeMsgPopup_";
 		String userTimeKey = keyPrev + eventPopup.getFromUserName() + "_" + eventPopup.getCreateTime();
 		
 		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
 		if (success) {
 			String json = objectMapper.writeValueAsString(eventPopup);
-			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_MSG_SUBSCRIBE_POPUP_QUEUE, json);
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
 }
 		
 	}
@@ -528,14 +528,15 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		EventChange eventChange = xmlMapper.readValue(decryptedContent, EventChange.class);
-		
+		eventChange.setAppId(appId);
 		String keyPrev = "event_subscribeMsgChange_";
 		String userTimeKey = keyPrev + eventChange.getFromUserName() + "_" + eventChange.getCreateTime();
 		
 		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
 		if (success) {
 			String json = objectMapper.writeValueAsString(eventChange);
-			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_MSG_SUBSCRIBE_CHANGE_QUEUE, json);
+			//和图文的用一个queue，因为xml反序列化出来的实体只差一个字段，设置可空即可。
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
 		}
 		
 	}

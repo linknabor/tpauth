@@ -47,6 +47,8 @@ public class EventChange implements Serializable {
 	@JacksonXmlElementWrapper(localName = "SubscribeMsgChangeEvent")
 	@JacksonXmlProperty(localName = "List")
 	private List<TemplateDetail> list;
+	@JacksonXmlProperty(isAttribute = false)
+	private String appId;
 	
 	public static class TemplateDetail{
 		
@@ -123,10 +125,26 @@ public class EventChange implements Serializable {
 		this.event = event;
 	}
 
+	public List<TemplateDetail> getList() {
+		return list;
+	}
+
+	public void setList(List<TemplateDetail> list) {
+		this.list = list;
+	}
+
+	public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
+	}
+
 	@Override
 	public String toString() {
-		return "EventPopup [toUserName=" + toUserName + ", fromUserName=" + fromUserName + ", createTime=" + createTime
-				+ ", msgType=" + msgType + ", event=" + event + ", list=" + list + "]";
+		return "EventChange [toUserName=" + toUserName + ", fromUserName=" + fromUserName + ", createTime=" + createTime
+				+ ", msgType=" + msgType + ", event=" + event + ", list=" + list + ", appId=" + appId + "]";
 	}
 
 
