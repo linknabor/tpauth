@@ -1,6 +1,7 @@
 package com.eshequ.hexie.tpauth.service.impl;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -30,9 +31,11 @@ import com.eshequ.hexie.tpauth.vo.EventRequest;
 import com.eshequ.hexie.tpauth.vo.WechatResponse;
 import com.eshequ.hexie.tpauth.vo.auth.AuthorizerAccessToken;
 import com.eshequ.hexie.tpauth.vo.msg.CsMessage;
+import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseImageMessage.Image;
-import com.eshequ.hexie.tpauth.vo.msg.CsMessage.CsText;
+import com.eshequ.hexie.tpauth.vo.subscribemsg.EventChange;
+import com.eshequ.hexie.tpauth.vo.subscribemsg.EventPopup;
 import com.eshequ.hexie.tpauth.vo.msg.ResponseMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -251,7 +254,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
 		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
 		logger.info("replyTextMsg, request conent :" + content + ", response content :" + replyMsg);
-		return "";
+		return reply;
 	}
 	
 	private String generateXml(String toUserName, String fromUserName, String createTime, String msgType, String content) {
@@ -269,13 +272,12 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	
 	/**
 	 * 事件消息回复
-	 * 测试用
+	 * @param appId
 	 * @param decryptedContent
 	 * @return
-	 * @throws IOException
-	 * @throws AesException
+	 * @throws Exception
 	 */
-	private String replyEventMsg(String appId, String decryptedContent) throws IOException, AesException {
+	private String replyEventMsg(String appId, String decryptedContent) throws Exception {
 		
 		if (StringUtils.isEmpty(appId)) {
 			logger.warn("appId is empty, will skip ! decryptRoot : " + decryptedContent);
@@ -302,6 +304,12 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			break;
 		case WechatConfig.EVENT_TYPE_DELCARD:
 			//TODO
+			break;
+		case WechatConfig.EVENT_TYPE_SUBSCRIBE_MSG_POPUP:
+			eventSubscribeMsgPopup(appId, decryptedContent);
+			break;
+		case WechatConfig.EVENT_TYPE_SUBSCRIBE_MSG_CHANGE:
+			eventSubscribeMsgChange(appId, decryptedContent);
 			break;
 		default:
 			break;
@@ -456,7 +464,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 * @throws IOException
 	 * @throws AesException
 	 */
-	private String replyTextMsgByImg(String decryptedContent) throws IOException, AesException {
+	protected String replyTextMsgByImg(String decryptedContent) throws IOException, AesException {
 		
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
@@ -488,5 +496,49 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		return reply;
 	}
 
+	/**
+	 * 用户在图文等场景内订阅通知的操作
+	 * @param appId
+	 * @param decryptRoot
+	 * @throws Exception 
+	 */
+	public void eventSubscribeMsgPopup(String appId, String decryptedContent) throws Exception {
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		EventPopup eventPopup = xmlMapper.readValue(decryptedContent, EventPopup.class);
+		eventPopup.setAppId(appId);
+		String keyPrev = "event_subscribeMsgPopup_";
+		String userTimeKey = keyPrev + eventPopup.getFromUserName() + "_" + eventPopup.getCreateTime();
+		
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
+			String json = objectMapper.writeValueAsString(eventPopup);
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+		}
+		
+	}
+	
+	/**
+	 * 用户在服务通知管理页面做通知管理时的操作
+	 * @param appId
+	 * @param decryptRoot
+	 * @throws Exception 
+	 */
+	public void eventSubscribeMsgChange(String appId, String decryptedContent) throws Exception {
+		
+		XmlMapper xmlMapper = new XmlMapper();
+		EventChange eventChange = xmlMapper.readValue(decryptedContent, EventChange.class);
+		eventChange.setAppId(appId);
+		String keyPrev = "event_subscribeMsgChange_";
+		String userTimeKey = keyPrev + eventChange.getFromUserName() + "_" + eventChange.getCreateTime();
+		
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
+			String json = objectMapper.writeValueAsString(eventChange);
+			//和图文的用一个queue，因为xml反序列化出来的实体只差一个字段，设置可空即可。
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+		}
+		
+	}
 	
 }

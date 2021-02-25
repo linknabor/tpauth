@@ -16,6 +16,9 @@ public class WechatConfig {
 	public final static String EVENT_TYPE_UPDATECARD = "update_member_card";	//会员卡内容更新事件,当用户的会员卡积分余额发生变动时，微信会推送事件告知开发者。
 	public final static String EVENT_TYPE_DELCARD = "user_del_card";	//删除卡事件
 	
+	public final static String EVENT_TYPE_SUBSCRIBE_MSG_POPUP = "subscribe_msg_popup_event";	//用户在图文等场景内订阅通知的操作
+	public final static String EVENT_TYPE_SUBSCRIBE_MSG_CHANGE = "subscribe_msg_change_event";	//用户在服务通知管理页面做通知管理时的操作
+	
 	/* authorization start */
 	public final static String COMPONENT_ACCESS_TOKEN_URL = "https://api.weixin.qq.com/cgi-bin/component/api_component_token";
 	

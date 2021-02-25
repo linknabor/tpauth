@@ -27,6 +27,9 @@ public class Constants {
 	
 	public static final String KEY_EVENT_UPDATECARD_QUEUE = "queueEventUpdateCard"; //更新卡事件队列
 	
+	public static final String KEY_EVENT_SUBSCRIBE_MSG_QUEUE = "queueSubscribeMsg";	//用户在图文等场景内订阅通知的操作 事件队列
+	
+	
 	public static List<String> mobileDevices;
 	
 	static {
