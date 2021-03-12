@@ -31,8 +31,8 @@ public class WechatMessageController {
 	 * @param requestXml
 	 * @return
 	 */
-	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {MediaType.APPLICATION_XML_VALUE})
-	public void msgEvent(HttpServletRequest request, HttpServletResponse response,
+	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST)
+	public String msgEvent(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody String postData, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
@@ -46,19 +46,10 @@ public class WechatMessageController {
 		EventRequest eventRequest = new EventRequest(appId, msgSignature, timeStamp, nonce, 
 				encryptType, msgSignature, postData);
 		logger.info("event msg : " + eventRequest);
-		String responeMsg = messageService.handleMsgEvent(eventRequest);
 		
-		try {
-			if ("".equals(responeMsg)) {
-				response.addHeader("Content-Type", "text/plain;charset=UTF-8");
-			}else {
-				response.addHeader("Content-Type", "application/xml;charset=UTF-8");
-			}
-			response.getWriter().write(responeMsg);
-			response.getWriter().close();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
-		}
+		String responseMsg = messageService.handleMsgEvent(eventRequest);
+		return responseMsg;
+		
 	}
 	
 	/**
