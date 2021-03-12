@@ -230,7 +230,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	public String replyTextMsg(String decryptedContent) throws IOException, AesException {
 		
 		logger.info(decryptedContent);
-		return "success";
+		return "";
 	}
 	
 	
