@@ -47,8 +47,13 @@ public class WechatMessageController {
 				encryptType, msgSignature, postData);
 		logger.info("event msg : " + eventRequest);
 		String responeMsg = messageService.handleMsgEvent(eventRequest);
+		
 		try {
-			response.addHeader("Content-Type", "application/xml;charset=UTF-8");
+			if ("".equals(responeMsg)) {
+				response.addHeader("Content-Type", "text/plain;charset=UTF-8");
+			}else {
+				response.addHeader("Content-Type", "application/xml;charset=UTF-8");
+			}
 			response.getWriter().write(responeMsg);
 			response.getWriter().close();
 		} catch (IOException e) {
