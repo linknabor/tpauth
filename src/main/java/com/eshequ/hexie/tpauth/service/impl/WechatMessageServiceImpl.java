@@ -460,7 +460,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		logger.info("replyTextMsgByImage, request conent :" + content + ", response content :" + replyMsg);
 		return reply;
 	}
-
+	
 	/**
 	 * 用户在图文等场景内订阅通知的操作
 	 * @param appId
@@ -479,7 +479,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		if (success) {
 			String json = objectMapper.writeValueAsString(eventPopup);
 			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
-		}
+}
 		
 	}
 	
