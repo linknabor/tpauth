@@ -229,45 +229,10 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	public String replyTextMsg(String decryptedContent) throws IOException, AesException {
 		
-		XmlMapper xmlMapper = new XmlMapper();
-		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
-
-		JsonNode contentNode = decryptRoot.path("Content");
-		String content = contentNode.asText();
-		JsonNode fromUserNode = decryptRoot.path("FromUserName");
-		JsonNode toUserNode = decryptRoot.path("ToUserName");
-		String fromUserName = fromUserNode.asText();
-		String toUserName = toUserNode.asText();
-		
-		String respContent = content + "_callback";
-//		ResponseMessage responseMessage = new ResponseMessage();
-//		responseMessage.setFromUserName(toUserName);
-//		responseMessage.setToUserName(fromUserName);
-//		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
-//		responseMessage.setMsgType(WechatConfig.MSG_TYPE_TEXT);
-//		responseMessage.setContent(respContent);
-//		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
-//		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
-		
-		String replyMsg = generateXml(fromUserName, toUserName, String.valueOf(System.currentTimeMillis()), WechatConfig.MSG_TYPE_TEXT, respContent);
-		//replyMsg = replyMsg.replaceAll(" ", "").replaceAll("\n", "");	//去换行
-		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
-		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
-		logger.info("replyTextMsg, request conent :" + content + ", response content :" + replyMsg);
-		return reply;
+		logger.info(decryptedContent);
+		return "success";
 	}
 	
-	private String generateXml(String toUserName, String fromUserName, String createTime, String msgType, String content) {
-
-		String format = "<xml>\n" + "<ToUserName><![CDATA[%1$s]]></ToUserName>\n"
-				+ "<FromUserName><![CDATA[%2$s]]></FromUserName>\n"
-				+ "<CreateTime>%3$s</CreateTime>\n" 
-				+ "<MsgType><![CDATA[%4$s]]></MsgType>\n" 
-				+ "<Content><![CDATA[%5$s]]></Content>\n" 
-				+ "</xml>";
-		return String.format(format, toUserName, fromUserName, createTime, msgType, content);
-
-	}
 	
 	
 	/**
