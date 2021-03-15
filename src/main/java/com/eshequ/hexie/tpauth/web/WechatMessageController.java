@@ -1,24 +1,21 @@
 package com.eshequ.hexie.tpauth.web;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.eshequ.hexie.tpauth.service.WechatMessageService;
 import com.eshequ.hexie.tpauth.vo.EventRequest;
 
-@Controller
+@RestController
 public class WechatMessageController {
 	
 	private Logger logger = LoggerFactory.getLogger(WechatMessageController.class);
@@ -31,8 +28,8 @@ public class WechatMessageController {
 	 * @param requestXml
 	 * @return
 	 */
-	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST, produces = {MediaType.APPLICATION_XML_VALUE})
-	public void msgEvent(HttpServletRequest request, HttpServletResponse response,
+	@RequestMapping(value = "/event/msg/*", method = RequestMethod.POST)
+	public String msgEvent(HttpServletRequest request, HttpServletResponse response,
 			@RequestBody String postData, 
 			@RequestParam(value = "signature", required = false) String signature,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
@@ -46,20 +43,11 @@ public class WechatMessageController {
 		EventRequest eventRequest = new EventRequest(appId, msgSignature, timeStamp, nonce, 
 				encryptType, msgSignature, postData);
 		logger.info("event msg : " + eventRequest);
-		String responeMsg = messageService.handleMsgEvent(eventRequest);
 		
-		try {
-			if ("".equals(responeMsg)) {
-				response.addHeader("Content-Type", "text/plain;charset=UTF-8");
-			}else {
-				response.addHeader("Content-Type", "application/xml;charset=UTF-8");
-			}
-			response.getWriter().write(responeMsg);
-			response.getWriter().close();
-		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+		String responseMsg = messageService.handleMsgEvent(eventRequest);
+		return responseMsg;
+		
 		}
-	}
 	
 	/**
 	 * 从请求链接中截取appId

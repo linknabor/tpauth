@@ -259,7 +259,8 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			eventSubscribe(appId, decryptRoot);
 			break;
 		case WechatConfig.EVENT_TYPE_UNSUBSCRIBE:
-			//TODO 异步删除用户信息（微信要求，基于欧洲用户隐私保护法）
+			//异步删除用户信息（微信要求，基于欧洲用户隐私保护法）
+			eventUnsubscribe(appId, decryptRoot);
 			break;
 		case WechatConfig.EVENT_TYPE_USERGETCARD:
 			eventGetCard(appId, decryptRoot);
@@ -293,11 +294,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	private void eventSubscribe(String appId, JsonNode decryptRoot) throws JsonProcessingException {
 		
-		if (wechatCardEnabledApps.indexOf(appId)==-1) {
-			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
-			return;
-		}
-		
 		//异步推送模板消息：推送到队列，队列慢慢处理，这样每个线程可以省下时间，应对并发。
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
@@ -306,14 +302,48 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		String keyPrev = "event_Subsribe_";
 		String userTimeKey = keyPrev + fromUserOpenId + "_" + createTime;
 		
-		Long times = redisTemplate.opsForValue().increment(userTimeKey, 1);	//直接往上加
-		if (times == 1) {
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
 			Map<String, String> map = new HashMap<>();
 			map.put("openid", fromUserOpenId);
 			map.put("appId", appId);
+			map.put("createTime", createTime);
 			String json = objectMapper.writeValueAsString(map);
-			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_QUEUE, json);
-			redisTemplate.expire(userTimeKey, 10, TimeUnit.MINUTES);	//10分钟过期。一般并发出现在服务器没有响应腾讯的情况下，腾讯会陆续发3次请求，间隔不会超过10分钟的。
+			//TODO 标准做法应该是 一个发布者 对应 两个不同的订阅者，但redis的发布/订阅模式，消息不会被持久化，消息没有处理成功就没了
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_QUEUE, json);	//关注事件触发的图文消息
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_UPDATE_QUEUE, json);	//关注事件触发的用户信息更新
+		}else {
+			logger.warn("duplicated request, user :" + fromUserOpenId + ", createTime : " + createTime);
+		}
+		
+		
+	}
+	
+	/**
+	 * 取消关注事件
+	 * 事件消息直接放到队列，推送到 hexie的redis队列，在hexie处理，这里直接返回空串。
+	 * @param appId
+	 * @param decryptRoot
+	 * @throws JsonProcessingException
+	 */
+	private void eventUnsubscribe(String appId, JsonNode decryptRoot) throws JsonProcessingException {
+		
+		//异步推送模板消息：推送到队列，队列慢慢处理，这样每个线程可以省下时间，应对并发。
+		JsonNode fromUserNode = decryptRoot.path("FromUserName");
+		String fromUserOpenId = fromUserNode.asText();
+		JsonNode createTimeNode = decryptRoot.path("CreateTime");
+		String createTime = createTimeNode.asText();
+		String keyPrev = "event_Unsubsribe_";
+		String userTimeKey = keyPrev + fromUserOpenId + "_" + createTime;
+		
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
+			Map<String, String> map = new HashMap<>();
+			map.put("openid", fromUserOpenId);
+			map.put("appId", appId);
+			map.put("createTime", createTime);
+			String json = objectMapper.writeValueAsString(map);
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_UNSUBSCRIBE_QUEUE, json);	//关注事件触发的图文消息
 		}else {
 			logger.warn("duplicated request, user :" + fromUserOpenId + ", createTime : " + createTime);
 		}
