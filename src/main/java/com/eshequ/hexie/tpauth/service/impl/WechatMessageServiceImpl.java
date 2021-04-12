@@ -65,8 +65,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	@Value("${customservice.image.mediaid}")
 	private String mediaId;
 	
-	@Value("customServiceEnabledApps")
+	@Value("${customServiceEnabledApps}")
 	private String customServiceEnabledApps;
+	
+	@Value("${staffclientAppid}")
+	private String staffclientAppid;
 	
 	@Autowired
 	private RestUtil restutil;
@@ -81,6 +84,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	@Autowired
 	@Qualifier(value = "hexieStringRedisTemplate")
 	private StringRedisTemplate hexieStringRedisTemplate;
+	
+	@Autowired
+	@Qualifier(value = "staffclientStringRedisTemplate")
+	private StringRedisTemplate staffclientStringRedisTemplate;
+	
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -509,7 +517,10 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		if (success) {
 			String json = objectMapper.writeValueAsString(eventPopup);
 			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
-}
+			if (appId.equals(staffclientAppid)) {	//appid肯定不为空，放前面
+				staffclientStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+			}
+		}
 		
 	}
 	
@@ -532,6 +543,9 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			String json = objectMapper.writeValueAsString(eventChange);
 			//和图文的用一个queue，因为xml反序列化出来的实体只差一个字段，设置可空即可。
 			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+			if (appId.equals(staffclientAppid)) {	//appid肯定不为空，放前面
+				staffclientStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+			}
 		}
 		
 	}
