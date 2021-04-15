@@ -29,6 +29,10 @@ public class Constants {
 	
 	public static final String KEY_EVENT_SUBSCRIBE_MSG_QUEUE = "queueSubscribeMsg";	//用户在图文等场景内订阅通知的操作 事件队列
 	
+	public static final String KEY_EVENT_SUBSCRIBE_UPDATE_QUEUE = "queueEventUpdateSubscribe";	//关注事件消息队列，更新用户信息用
+	
+	public static final String KEY_EVENT_UNSUBSCRIBE_QUEUE = "queueEventUnsubscribe";	//取消关注事件消息队列
+
 	
 	public static List<String> mobileDevices;
 	

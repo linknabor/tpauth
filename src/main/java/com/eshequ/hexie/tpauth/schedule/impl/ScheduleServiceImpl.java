@@ -35,6 +35,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 	private RedisTemplate<String, Object> hexieRedisTemplate;
 	
 	@Autowired
+	@Qualifier(value = "staffclientRedisTemplate")
+	private RedisTemplate<String, Object> staffclientRedisTemplate;
+	
+	@Autowired
 	private AuthService authService;
 	
 	@Autowired
@@ -70,7 +74,16 @@ public class ScheduleServiceImpl implements ScheduleService {
 			cat = authService.getComponentAccessToken(verifyTicket.getVerifyTicket());
 			cat.setCreateTime(System.currentTimeMillis());
 			redisTemplate.opsForValue().set(Constants.KEY_COMPONENT_ACCESS_TOKEN, cat);
-			hexieRedisTemplate.opsForValue().set(Constants.KEY_COMPONENT_ACCESS_TOKEN, cat.getComponentAcessToken());
+			try {
+				hexieRedisTemplate.opsForValue().set(Constants.KEY_COMPONENT_ACCESS_TOKEN, cat.getComponentAcessToken());
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+			try {
+				staffclientRedisTemplate.opsForValue().set(Constants.KEY_COMPONENT_ACCESS_TOKEN, cat.getComponentAcessToken());
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 			logger.info("save component access token into redis .");
 		}
 		logger.info("end checking component access token.");
@@ -122,6 +135,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 					redisTemplate.opsForValue().set(authTokenKey, aat);
 					try {
 						hexieRedisTemplate.opsForValue().set(authTokenKey, aat.getAuthorizerAccessToken());	//给合协公众号设置授权了的AccessToken
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
+					try {
+						staffclientRedisTemplate.opsForValue().set(authTokenKey, aat.getAuthorizerAccessToken());	//给合协公众号设置授权了的AccessToken
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
 					}
@@ -177,6 +195,11 @@ public class ScheduleServiceImpl implements ScheduleService {
 					redisTemplate.opsForValue().set(jsKey, jsTicket);
 					try {
 						hexieRedisTemplate.opsForValue().set(jsKey, jsTicket.getTicket());	//给合协公众号设置授权了的AccessToken
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+					}
+					try {
+						staffclientRedisTemplate.opsForValue().set(jsKey, jsTicket.getTicket());	//给合协公众号设置授权了的AccessToken
 					} catch (Exception e) {
 						logger.error(e.getMessage(), e);
 					}

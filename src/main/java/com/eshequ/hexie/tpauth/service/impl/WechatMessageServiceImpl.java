@@ -65,8 +65,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	@Value("${customservice.image.mediaid}")
 	private String mediaId;
 	
-	@Value("customServiceEnabledApps")
+	@Value("${customServiceEnabledApps}")
 	private String customServiceEnabledApps;
+	
+	@Value("${staffclientAppid}")
+	private String staffclientAppid;
 	
 	@Autowired
 	private RestUtil restutil;
@@ -81,6 +84,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	@Autowired
 	@Qualifier(value = "hexieStringRedisTemplate")
 	private StringRedisTemplate hexieStringRedisTemplate;
+	
+	@Autowired
+	@Qualifier(value = "staffclientStringRedisTemplate")
+	private StringRedisTemplate staffclientStringRedisTemplate;
+	
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -229,45 +237,11 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	public String replyTextMsg(String decryptedContent) throws IOException, AesException {
 		
-		XmlMapper xmlMapper = new XmlMapper();
-		JsonNode decryptRoot = xmlMapper.readTree(decryptedContent);
+		logger.info(decryptedContent);
+		return "";
 
-		JsonNode contentNode = decryptRoot.path("Content");
-		String content = contentNode.asText();
-		JsonNode fromUserNode = decryptRoot.path("FromUserName");
-		JsonNode toUserNode = decryptRoot.path("ToUserName");
-		String fromUserName = fromUserNode.asText();
-		String toUserName = toUserNode.asText();
-		
-		String respContent = content + "_callback";
-//		ResponseMessage responseMessage = new ResponseMessage();
-//		responseMessage.setFromUserName(toUserName);
-//		responseMessage.setToUserName(fromUserName);
-//		responseMessage.setCreateTime(String.valueOf(System.currentTimeMillis()));
-//		responseMessage.setMsgType(WechatConfig.MSG_TYPE_TEXT);
-//		responseMessage.setContent(respContent);
-//		String replyMsg = xmlMapper.writeValueAsString(responseMessage);
-//		replyMsg = replyMsg.replaceAll("\r", "").replaceAll("\n", "").replaceAll("\r\n", "").replace("\t", "").replaceAll(" ", "");	//去换行
-
-		String replyMsg = generateXml(fromUserName, toUserName, String.valueOf(System.currentTimeMillis()), WechatConfig.MSG_TYPE_TEXT, respContent);
-		//replyMsg = replyMsg.replaceAll(" ", "").replaceAll("\n", "");	//去换行
-		WXBizMsgCrypt msgCrypt = new WXBizMsgCrypt(token, aeskey, componentAppid);
-		String reply = msgCrypt.encryptMsg(replyMsg, String.valueOf(System.currentTimeMillis()), RandomUtil.buildRandom());
-		logger.info("replyTextMsg, request conent :" + content + ", response content :" + replyMsg);
-		return reply;
 	}
 	
-	private String generateXml(String toUserName, String fromUserName, String createTime, String msgType, String content) {
-
-		String format = "<xml>\n" + "<ToUserName><![CDATA[%1$s]]></ToUserName>\n"
-				+ "<FromUserName><![CDATA[%2$s]]></FromUserName>\n"
-				+ "<CreateTime>%3$s</CreateTime>\n" 
-				+ "<MsgType><![CDATA[%4$s]]></MsgType>\n" 
-				+ "<Content><![CDATA[%5$s]]></Content>\n" 
-				+ "</xml>";
-		return String.format(format, toUserName, fromUserName, createTime, msgType, content);
-
-	}
 	
 	
 	/**
@@ -294,7 +268,8 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			eventSubscribe(appId, decryptRoot);
 			break;
 		case WechatConfig.EVENT_TYPE_UNSUBSCRIBE:
-			//TODO 异步删除用户信息（微信要求，基于欧洲用户隐私保护法）
+			//异步删除用户信息（微信要求，基于欧洲用户隐私保护法）
+			eventUnsubscribe(appId, decryptRoot);
 			break;
 		case WechatConfig.EVENT_TYPE_USERGETCARD:
 			eventGetCard(appId, decryptRoot);
@@ -328,11 +303,6 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 	 */
 	private void eventSubscribe(String appId, JsonNode decryptRoot) throws JsonProcessingException {
 		
-		if (wechatCardEnabledApps.indexOf(appId)==-1) {
-			logger.info("当前公众号["+appId+"]，未开通卡券服务。");
-			return;
-		}
-		
 		//异步推送模板消息：推送到队列，队列慢慢处理，这样每个线程可以省下时间，应对并发。
 		JsonNode fromUserNode = decryptRoot.path("FromUserName");
 		String fromUserOpenId = fromUserNode.asText();
@@ -341,14 +311,48 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		String keyPrev = "event_Subsribe_";
 		String userTimeKey = keyPrev + fromUserOpenId + "_" + createTime;
 		
-		Long times = redisTemplate.opsForValue().increment(userTimeKey, 1);	//直接往上加
-		if (times == 1) {
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
 			Map<String, String> map = new HashMap<>();
 			map.put("openid", fromUserOpenId);
 			map.put("appId", appId);
+			map.put("createTime", createTime);
 			String json = objectMapper.writeValueAsString(map);
-			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_QUEUE, json);
-			redisTemplate.expire(userTimeKey, 10, TimeUnit.MINUTES);	//10分钟过期。一般并发出现在服务器没有响应腾讯的情况下，腾讯会陆续发3次请求，间隔不会超过10分钟的。
+			//TODO 标准做法应该是 一个发布者 对应 两个不同的订阅者，但redis的发布/订阅模式，消息不会被持久化，消息没有处理成功就没了
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_QUEUE, json);	//关注事件触发的图文消息
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_UPDATE_QUEUE, json);	//关注事件触发的用户信息更新
+		}else {
+			logger.warn("duplicated request, user :" + fromUserOpenId + ", createTime : " + createTime);
+		}
+		
+		
+	}
+	
+	/**
+	 * 取消关注事件
+	 * 事件消息直接放到队列，推送到 hexie的redis队列，在hexie处理，这里直接返回空串。
+	 * @param appId
+	 * @param decryptRoot
+	 * @throws JsonProcessingException
+	 */
+	private void eventUnsubscribe(String appId, JsonNode decryptRoot) throws JsonProcessingException {
+		
+		//异步推送模板消息：推送到队列，队列慢慢处理，这样每个线程可以省下时间，应对并发。
+		JsonNode fromUserNode = decryptRoot.path("FromUserName");
+		String fromUserOpenId = fromUserNode.asText();
+		JsonNode createTimeNode = decryptRoot.path("CreateTime");
+		String createTime = createTimeNode.asText();
+		String keyPrev = "event_Unsubsribe_";
+		String userTimeKey = keyPrev + fromUserOpenId + "_" + createTime;
+		
+		Boolean success = redisTemplate.opsForValue().setIfAbsent(userTimeKey, "", Duration.ofMinutes(10l));	//10分钟过期
+		if (success) {
+			Map<String, String> map = new HashMap<>();
+			map.put("openid", fromUserOpenId);
+			map.put("appId", appId);
+			map.put("createTime", createTime);
+			String json = objectMapper.writeValueAsString(map);
+			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_UNSUBSCRIBE_QUEUE, json);	//关注事件触发的图文消息
 		}else {
 			logger.warn("duplicated request, user :" + fromUserOpenId + ", createTime : " + createTime);
 		}
@@ -514,6 +518,10 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		if (success) {
 			String json = objectMapper.writeValueAsString(eventPopup);
 			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+			if (appId.equals(staffclientAppid)) {	//appid肯定不为空，放前面
+				staffclientStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+			}
+
 		}
 		
 	}
@@ -537,6 +545,10 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			String json = objectMapper.writeValueAsString(eventChange);
 			//和图文的用一个queue，因为xml反序列化出来的实体只差一个字段，设置可空即可。
 			hexieStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+			if (appId.equals(staffclientAppid)) {	//appid肯定不为空，放前面
+				staffclientStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
+			}
+
 		}
 		
 	}
