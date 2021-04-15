@@ -239,6 +239,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		
 		logger.info(decryptedContent);
 		return "";
+
 	}
 	
 	
@@ -498,7 +499,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 		logger.info("replyTextMsgByImage, request conent :" + content + ", response content :" + replyMsg);
 		return reply;
 	}
-	
+
 	/**
 	 * 用户在图文等场景内订阅通知的操作
 	 * @param appId
@@ -520,6 +521,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			if (appId.equals(staffclientAppid)) {	//appid肯定不为空，放前面
 				staffclientStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
 			}
+
 		}
 		
 	}
@@ -546,6 +548,7 @@ public class WechatMessageServiceImpl implements WechatMessageService {
 			if (appId.equals(staffclientAppid)) {	//appid肯定不为空，放前面
 				staffclientStringRedisTemplate.opsForList().rightPush(Constants.KEY_EVENT_SUBSCRIBE_MSG_QUEUE, json);
 			}
+
 		}
 		
 	}
