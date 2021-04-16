@@ -94,7 +94,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	 * 获取authorizerAccessToken(被授权方的 token)，每隔5分钟一次，如果token未超时，则不更新。
 	 * token每2小时超时，大于1小时50分的时候更新
 	 */
-	@Scheduled(cron = "0 0/30 * * * ?")
+	@Scheduled(cron = "0 0/15 * * * ?")
 	@Override
 	public void updateAuthorizerAccessToken() {
 		
@@ -111,6 +111,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 				String authTokenKey = Constants.KEY_AUTHORIZER_ACCESS_TOKEN + authAppid;
 				boolean updateFlag = false;
 				AuthorizerAccessToken aat = (AuthorizerAccessToken) redisTemplate.opsForValue().get(authTokenKey);
+				logger.info("aat : " + aat);
 				if (aat == null || StringUtils.isEmpty(aat.getAuthorizerAccessToken())) {
 					updateFlag = true;
 				}else {
@@ -123,7 +124,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 				}
 				if (updateFlag) {
 					if (aat == null || StringUtils.isEmpty(aat.getAuthorizerRefreshToken())) {
-						logger.warn("no authorizer refresh token. ");	//需要人工找到缓存里或者文件里的refresh token,重新set到redis里
+						logger.warn("appid: " + authAppid + ", no authorizer refresh token. ");	//需要人工找到缓存里或者文件里的refresh token,重新set到redis里
 						continue;
 					}
 					aat = authService.getAuthorizerAccessToken(authAppid, aat.getAuthorizerRefreshToken());
@@ -158,7 +159,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 	 * 获取js ticket(被授权方的 token)，每隔5分钟一次，如果token未超时，则不更新。
 	 * 每2小时超时，大于1小时50分的时候更新
 	 */
-	@Scheduled(cron = "0 1/30 * * * ?")
+	@Scheduled(cron = "0 1/15 * * * ?")
 	@Override
 	public void updateAuthorizerJsTicket() {
 		
