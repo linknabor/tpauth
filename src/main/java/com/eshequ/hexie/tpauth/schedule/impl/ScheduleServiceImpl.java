@@ -111,6 +111,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 				String authTokenKey = Constants.KEY_AUTHORIZER_ACCESS_TOKEN + authAppid;
 				boolean updateFlag = false;
 				AuthorizerAccessToken aat = (AuthorizerAccessToken) redisTemplate.opsForValue().get(authTokenKey);
+				logger.info("aat : " + aat);
 				if (aat == null || StringUtils.isEmpty(aat.getAuthorizerAccessToken())) {
 					updateFlag = true;
 				}else {
@@ -123,7 +124,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 				}
 				if (updateFlag) {
 					if (aat == null || StringUtils.isEmpty(aat.getAuthorizerRefreshToken())) {
-						logger.warn("no authorizer refresh token. ");	//需要人工找到缓存里或者文件里的refresh token,重新set到redis里
+						logger.warn("appid: " + authAppid + ", no authorizer refresh token. ");	//需要人工找到缓存里或者文件里的refresh token,重新set到redis里
 						continue;
 					}
 					aat = authService.getAuthorizerAccessToken(authAppid, aat.getAuthorizerRefreshToken());
